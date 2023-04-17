@@ -106,7 +106,7 @@ SimulationProposal::GetTypeId (void)
                    MakeTypeIdChecker ())
     .AddAttribute ("EnableSeqTsSizeHeader",
                    "Enable use of SeqTsSizeHeader for sequence number and timestamp",
-                   BooleanValue (false),
+                   BooleanValue (true),
                    MakeBooleanAccessor (&SimulationProposal::m_enableSeqTsSizeHeader),
                    MakeBooleanChecker ())
 //    .AddTraceSource ("Tx", "A new packet is created and is sent",

@@ -101,7 +101,7 @@
 #include "ns3/simulation-proposal.h"
 #include "ns3/simulation-proposal-helper.h"
 
-#include "ns3/simulation-proposal2.h"
+#include "ns3/simulation-proposal-reactive.h"
 #include "ns3/simulation-proposal-helper2.h"
 
 
@@ -277,7 +277,7 @@ int main (int argc, char *argv[])
     {
       AsciiTraceHelper ascii;
       wifiPhy.EnableAsciiAll (ascii.CreateFileStream ("wifi-simple-adhoc-grid.tr"));
-      wifiPhy.EnablePcap ("wifi-simple-adhoc-grid", devices);
+      wifiPhy.EnablePcap ("simulation-proposal-scenario", devices);
       // Trace routing tables
       Ptr<OutputStreamWrapper> routingStream = Create<OutputStreamWrapper> ("wifi-simple-adhoc-grid.routes", std::ios::out);
       for(double v=0.0;v<16;v++){

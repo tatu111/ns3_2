@@ -87,7 +87,7 @@ SeqTsSizeHeader2::Print (std::ostream &os) const
 uint32_t
 SeqTsSizeHeader2::GetSerializedSize (void) const
 {
-  return SeqTsHeader::GetSerializedSize () + 8;
+  return SeqTsHeader::GetSerializedSize () + 16;
 }
 
 void

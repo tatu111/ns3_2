@@ -178,6 +178,14 @@ public:
 
   int send_count = 0;
 
+  //sinkが把握しているcoreノード候補
+  std::map<Ipv4Address, uint32_t> sink_core_candidate;
+
+  std::map<Ipv4Address, uint32_t> GetSinkCoreCandidate ()
+  {
+	  return sink_core_candidate;
+  }
+
 
 protected:
   virtual void DoDispose (void);
@@ -239,8 +247,7 @@ private:
   //coreノード候補における周辺空き計算機資源量の総和
   uint32_t m_resource_sum;
 
-  //sinkが把握しているcoreノード候補
-  std::map<Ipv4Address, uint32_t> sink_core_candidate;
+
 
 
   /// Traced Callback: transmitted packets.
