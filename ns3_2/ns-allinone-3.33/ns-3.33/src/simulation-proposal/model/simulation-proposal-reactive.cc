@@ -256,9 +256,6 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
         	 if(node->GetId()==0){
 
 
-
-
-
         		 if (!m_socket)
                  {
         			 m_socket = Socket::CreateSocket (GetNode (), m_tid);
@@ -332,62 +329,87 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
         	 }
         	 else
         	 {
-        		 if(protocol->GetResourceThreshold().size()!=0){
+        		 if(protocol->GetResourceThreshold().size()!=0)
         			 {
         				 std::cout<<node->GetId()<<std::endl;
                     	 std::map<Ptr<Node>, Address> threshold = protocol->GetResourceThreshold();
                    	 m_local = threshold[node];
                       //send
                    	 // Create the socket if not already
-                   	 if (!m_socket_local)
-                   		 {
-                   		 m_socket_local = Socket::CreateSocket (node, m_tid);
-                   		 int ret = -1;
 
-                   		 if (! m_local.IsInvalid())
-                   			 {
-                   			 NS_ABORT_MSG_IF ((Inet6SocketAddress::IsMatchingType (m_peer) && InetSocketAddress::IsMatchingType (m_local)) ||
-                   								   (InetSocketAddress::IsMatchingType (m_peer) && Inet6SocketAddress::IsMatchingType (m_local)),
-                   								   "Incompatible peer and local address IP version");
-                   			 ret = m_socket_local->Bind (m_local);
-                   			 }
-                   		 else
-                   			 {
-                   			 if (Inet6SocketAddress::IsMatchingType (m_peer))
-                   					{
-                   				 ret = m_socket_local->Bind6 ();
-                   					}
-                   			 else if (InetSocketAddress::IsMatchingType (m_peer) ||
-                   						   PacketSocketAddress::IsMatchingType (m_peer))
-                   					{
-                   				 ret = m_socket_local->Bind ();
-                   					}
-                   			 }
+                   	 if(!m_socket_local){
+                   		m_socket_local = Socket::CreateSocket (node, m_tid);
+                   	 }
+                		m_socket_local->SetAllowBroadcast (true);
+                		m_socket_local->SetIpTtl (2);
+                		m_socket_local->SetRecvPktInfo (true);
 
-                   			  if (ret == -1)
-                   				    {
-                   				  NS_FATAL_ERROR ("Failed to bind socket");
-                   				    }
+                   		Ptr<Packet> packet;
+                   		SeqTsSizeHeader header;
+                   		header.SetSeq (m_seq++);
+                   		header.SetSize (m_pktSize);
+                   		NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
+                   		packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
+                   		// Trace before adding header, for consistency with PacketSink
+                   		packet->AddHeader (header);
 
-                   			  m_socket_local->Connect (m_peer);
-//                   			  m_socket_local->SetAllowBroadcast (true);
-                   			  m_socket_local->ShutdownRecv ();
+                   		//作成の必要あり
+//                   		Ipv4Address bcast = m_local.GetLocal ().GetSubnetDirectedBroadcast (m_local.GetMask ());
+//                   		m_socket_local->SendTo (packet, 0, InetSocketAddress (bcast, 8001));
+                   	 }
 
-                   			  m_socket_local->SetConnectCallback (
-                   				MakeCallback (&SimulationProposalReactive::ConnectionSucceeded, this),
-                   				MakeCallback (&SimulationProposalReactive::ConnectionFailed, this));
-                   		 }
-                   	 m_cbrRateFailSafe = m_cbrRate;
 
-                   	 // Insure no pending event
-                   	 CancelEvents ();
-                   	 // If we are not yet connected, there is nothing to do here
-                   	 // The ConnectionComplete upcall will start timers at that time
-                   	 //if (!m_connected) return;
-                   	 ScheduleStartEvent ();
 
-        			 }
-        		 }
+//                   	 if (!m_socket_local)
+//                   		 {
+//                   		 m_socket_local = Socket::CreateSocket (node, m_tid);
+//                   		 int ret = -1;
+//
+//                   		 if (! m_local.IsInvalid())
+//                   			 {
+//                   			 NS_ABORT_MSG_IF ((Inet6SocketAddress::IsMatchingType (m_peer) && InetSocketAddress::IsMatchingType (m_local)) ||
+//                   								   (InetSocketAddress::IsMatchingType (m_peer) && Inet6SocketAddress::IsMatchingType (m_local)),
+//                   								   "Incompatible peer and local address IP version");
+//                   			 ret = m_socket_local->Bind (m_local);
+//                   			 }
+//                   		 else
+//                   			 {
+//                   			 if (Inet6SocketAddress::IsMatchingType (m_peer))
+//                   					{
+//                   				 ret = m_socket_local->Bind6 ();
+//                   					}
+//                   			 else if (InetSocketAddress::IsMatchingType (m_peer) ||
+//                   						   PacketSocketAddress::IsMatchingType (m_peer))
+//                   					{
+//                   				 ret = m_socket_local->Bind ();
+//                   					}
+//                   			 }
+//
+//                   			  if (ret == -1)
+//                   				    {
+//                   				  NS_FATAL_ERROR ("Failed to bind socket");
+//                   				    }
+//
+//                   			  m_socket_local->Connect (m_peer);
+////                   			  m_socket_local->SetAllowBroadcast (true);
+//                   			  m_socket_local->ShutdownRecv ();
+//
+//                   			  m_socket_local->SetConnectCallback (
+//                   				MakeCallback (&SimulationProposalReactive::ConnectionSucceeded, this),
+//                   				MakeCallback (&SimulationProposalReactive::ConnectionFailed, this));
+//                   		 }
+
+//                   	 m_cbrRateFailSafe = m_cbrRate;
+//
+//                   	 // Insure no pending event
+//                   	 CancelEvents ();
+//                   	 // If we are not yet connected, there is nothing to do here
+//                   	 // The ConnectionComplete upcall will start timers at that time
+//                   	 //if (!m_connected) return;
+//                   	 ScheduleStartEvent ();
+//
+//        			 }
+//        		 }
         	 }
            }
 	  }

@@ -141,6 +141,10 @@ public:
     EXCLUDE
   };
 
+  void ResetIpTtl (uint8_t ipTtl);
+
+
+
   /**
    * This method wraps the creation of sockets that is performed
    * on a given node by a SocketFactory specified by TypeId.

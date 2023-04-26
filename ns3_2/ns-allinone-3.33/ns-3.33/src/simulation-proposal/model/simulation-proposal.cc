@@ -49,7 +49,7 @@
 #include "ns3/olsr-routing-protocol.h"
 #include <random>
 #include "ns3/ipv4-list-routing.h"
-#include "ns3/seq-ts-size-header2.h"
+#include "ns3/simulation-header.h"
 //
 
 namespace ns3 {
@@ -606,7 +606,7 @@ void SimulationProposal::SendPacket ()
       Address from, to;
       m_socket_local->GetSockName (from);
       m_socket_local->GetPeerName (to);
-      SeqTsSizeHeader2 header;
+      SimulationHeader header;
       header.SetSeq (m_seq++);
       header.SetSize (m_pktSize);
       header.SetResource(m_resource_sum);
@@ -728,7 +728,7 @@ void
 SimulationProposal::PacketReceived (const Ptr<Packet> &p, const Address &from,
                             const Address &localAddress, const Ipv4Address &senderIface)
 {
-  SeqTsSizeHeader2 header;
+  SimulationHeader header;
   Ptr<Packet> buffer;
 
   auto itBuffer = m_buffer.find (from);
