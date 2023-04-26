@@ -11,7 +11,7 @@ def build(bld):
     module.source = [
         'model/simulation-proposal.cc',
         'model/simulation-proposal-reactive.cc',
-        'model/seq-ts-size-header2.cc',
+        'model/simulation-header.cc',
         'helper/simulation-proposal-helper.cc',
         'helper/simulation-proposal-reactive-helper.cc',
         ]
@@ -31,7 +31,7 @@ def build(bld):
     headers.source = [
         'model/simulation-proposal.h',
         'model/simulation-proposal-reactive.h',
-        'model/seq-ts-size-header2.h',
+        'model/simulation-header.h',
         'helper/simulation-proposal-helper.h',
         'helper/simulation-proposal-reactive-helper.h',
         ]

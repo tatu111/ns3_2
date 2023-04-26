@@ -1,0 +1,10 @@
+prefix=/usr/local
+libdir=/usr/local/lib
+includedir=/usr/local/include/ns3.33
+
+Name: libns3-simulation-proposal
+Description: ns-3 module ns3-simulation-proposal
+Version: 3.33
+Libs: -L${libdir} -Wl,-Bdynamic -lns3.33-simulation-proposal-debug
+Cflags: -I${includedir}
+Requires: libns3.33-core-debug libns3.33-olsr-debug libns3.33-applications-debug libns3.33-internet-debug libns3.33-mobility-debug

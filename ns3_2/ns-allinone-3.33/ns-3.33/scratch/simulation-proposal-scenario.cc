@@ -102,7 +102,7 @@
 #include "ns3/simulation-proposal-helper.h"
 
 #include "ns3/simulation-proposal-reactive.h"
-#include "ns3/simulation-proposal-helper2.h"
+#include "ns3/simulation-proposal-reactive-helper.h"
 
 
 using namespace ns3;
