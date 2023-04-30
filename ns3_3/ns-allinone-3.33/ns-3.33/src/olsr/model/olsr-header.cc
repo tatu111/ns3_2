@@ -204,6 +204,9 @@ MessageHeader::GetSerializedSize (void) const
     case HNA_MESSAGE:
       size += m_message.hna.GetSerializedSize ();
       break;
+    case RESOURCE_MESSAGE:
+      size += m_message.resource.GetSerializedSize();
+      break;
     default:
       NS_ASSERT (false);
     }
@@ -242,6 +245,9 @@ MessageHeader::Serialize (Buffer::Iterator start) const
     case HNA_MESSAGE:
       m_message.hna.Serialize (i);
       break;
+    case RESOURCE_MESSAGE:
+      m_message.resource.Serialize(i);
+      break;
     default:
       NS_ASSERT (false);
     }
@@ -275,6 +281,9 @@ MessageHeader::Deserialize (Buffer::Iterator start)
       break;
     case HNA_MESSAGE:
       size += m_message.hna.Deserialize (i, m_messageSize - OLSR_MSG_HEADER_SIZE);
+      break;
+    case RESOURCE_MESSAGE:
+      size += m_message.resource.Deserialize(i, m_messageSize - OLSR_MSG_HEADER_SIZE);
       break;
     default:
       NS_ASSERT (false);
@@ -356,7 +365,14 @@ MessageHeader::Hello::Serialize (Buffer::Iterator start) const
 {
   Buffer::Iterator i = start;
 
-  i.WriteU16 (0); // Reserved
+  i.WriteU8 (0); // Reserved
+
+
+  //自分で付け加えた(植田)
+  //i.WriteU8(this->resource_per);
+  i.WriteU8 (this->resource);
+  //
+
   i.WriteU8 (this->hTime);
   i.WriteU8 (this->willingness);
 
@@ -393,7 +409,13 @@ MessageHeader::Hello::Deserialize (Buffer::Iterator start, uint32_t messageSize)
 
   uint16_t helloSizeLeft = messageSize;
 
-  i.ReadNtohU16 (); // Reserved
+
+  i.ReadU8();// Reserved
+
+  //自分で付け加えた
+  this->resource = i.ReadU8 ();
+ // this->resource_per = i.ReadU8 ();
+  //
   this->hTime = i.ReadU8 ();
   this->willingness = i.ReadU8 ();
 
@@ -515,6 +537,40 @@ MessageHeader::Hna::Deserialize (Buffer::Iterator start, uint32_t messageSize)
   return messageSize;
 }
 
+
+
+// ---------------- OLSR RESOURCE Message -------------------------------
+
+
+uint32_t
+MessageHeader::Resource::GetSerializedSize (void) const
+{
+  return 16;
+}
+
+void
+MessageHeader::Resource::Print (std::ostream &os) const
+{
+  /// \todo
+}
+
+void
+MessageHeader::Resource::Serialize (Buffer::Iterator start) const
+{
+  Buffer::Iterator i = start;
+
+  i.WriteHtonU16 (this->send_resource_sum);
+}
+
+uint32_t
+MessageHeader::Resource::Deserialize (Buffer::Iterator start, uint32_t messageSize)
+{
+  Buffer::Iterator i = start;
+
+  this->send_resource_sum = i.ReadNtohU16();
+
+  return GetSerializedSize ();
+}
+
 }
 }  // namespace olsr, ns3
-

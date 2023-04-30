@@ -72,7 +72,9 @@ OlsrMprTestCase::~OlsrMprTestCase ()
 void
 OlsrMprTestCase::DoRun ()
 {
-  Ptr<RoutingProtocol> protocol = CreateObject<RoutingProtocol> ();
+
+	//RoutingProtocolをolsr::RoutingProtocolに変更
+  Ptr<olsr::RoutingProtocol> protocol = CreateObject<olsr::RoutingProtocol> ();
   protocol->m_mainAddress = Ipv4Address ("10.0.0.1");
   OlsrState & state = protocol->m_state;
 

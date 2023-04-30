@@ -516,6 +516,16 @@ Socket::SetIpTtl (uint8_t ttl)
   m_ipTtl = ttl;
 }
 
+
+void
+Socket::ResetIpTtl (uint8_t ttl)
+{
+  m_manualIpTtl = false;
+}
+
+
+
+
 uint8_t
 Socket::GetIpTtl (void) const
 {
