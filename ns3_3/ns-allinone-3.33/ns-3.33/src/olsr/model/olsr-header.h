@@ -166,6 +166,7 @@ public:
     TC_MESSAGE    = 2,
     MID_MESSAGE   = 3,
     HNA_MESSAGE   = 4,
+	RESOURCE_MESSAGE = 5,
   };
 
   MessageHeader ();
@@ -407,6 +408,13 @@ public:
     uint8_t willingness; //!< The willingness of a node to carry and forward traffic for other nodes.
     std::vector<LinkMessage> linkMessages; //!< Link messages container.
 
+    //自分で付け加えた(植田)
+   uint8_t resource;  //自ノードの計算機資源量を表す
+
+//   uint8_t resource_per; //自ノードの空き計算機資源量の％を表す
+    //
+
+
     /**
      * This method is used to print the content of a MID message.
      * \param os output stream
@@ -554,6 +562,40 @@ public:
     uint32_t Deserialize (Buffer::Iterator start, uint32_t messageSize);
   };
 
+  struct Resource
+    {
+	  uint16_t send_resource_sum;
+      /**
+       * This method is used to print the content of a MID message.
+       * \param os output stream
+       */
+      void Print (std::ostream &os) const;
+      /**
+       * Returns the expected size of the header.
+       * \returns the expected size of the header.
+       */
+      uint32_t GetSerializedSize (void) const;
+      /**
+       * This method is used by Packet::AddHeader to
+       * store a header into the byte buffer of a packet.
+       *
+       * \param start an iterator which points to where the header should
+       *        be written.
+       */
+      void Serialize (Buffer::Iterator start) const;
+      /**
+       * This method is used by Packet::RemoveHeader to
+       * re-create a header from the byte buffer of a packet.
+       *
+       * \param start an iterator which points to where the header should
+       *        read from.
+       * \param messageSize the message size.
+       * \returns the number of bytes read.
+       */
+      uint32_t Deserialize (Buffer::Iterator start, uint32_t messageSize);
+    };
+
+
 private:
   /**
    * Structure holding the message content.
@@ -564,6 +606,7 @@ private:
     Hello hello;  //!< HELLO message (optional).
     Tc tc;        //!< TC message (optional).
     Hna hna;      //!< HNA message (optional).
+    Resource resource;//自分で作成 (RESOURCE message)
   } m_message; //!< The actual message being carried.
 
 public:
@@ -636,6 +679,19 @@ public:
   }
 
 
+  Resource& GetResource()
+  {
+	  if (m_messageType == 0)
+	        {
+	          m_messageType = RESOURCE_MESSAGE;
+	        }
+	      else
+	        {
+	          NS_ASSERT (m_messageType == RESOURCE_MESSAGE);
+	        }
+	      return m_message.resource;
+  }
+
   /**
    * Get the MID message.
    * \returns The MID message.
@@ -676,6 +732,11 @@ public:
     return m_message.hna;
   }
 
+  const Resource& GetResource () const
+    {
+      NS_ASSERT (m_messageType == RESOURCE_MESSAGE);
+      return m_message.resource;
+    }
 
 };
 
@@ -715,4 +776,3 @@ static inline std::ostream& operator<< (std::ostream& os, const MessageList & me
 }  // namespace olsr, ns3
 
 #endif /* OLSR_HEADER_H */
-

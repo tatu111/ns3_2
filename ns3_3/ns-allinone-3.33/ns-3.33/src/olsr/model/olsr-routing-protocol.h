@@ -39,12 +39,22 @@
 #include "ns3/ipv4.h"
 #include "ns3/ipv4-routing-protocol.h"
 #include "ns3/ipv4-static-routing.h"
+#include "ns3/ipv4-l3-protocol.h"
+#include "ns3/ipv4-interface.h"
+
+#include "ns3/simulation-proposal.h"
+#include "ns3/seq-ts-size-header.h"
+#include "ns3/application.h"
+#include "ns3/rand-simulation.h"
+
 
 #include <vector>
 #include <map>
 
 /// Testcase for MPR computation mechanism
 class OlsrMprTestCase;
+
+
 
 namespace ns3 {
 namespace olsr {
@@ -84,6 +94,7 @@ public:
    * Declared friend to enable unit tests.
    */
   friend class ::OlsrMprTestCase;
+
 
   static const uint16_t OLSR_PORT_NUMBER; //!< port number (698)
 
@@ -177,11 +188,57 @@ public:
    */
   typedef void (* TableChangeTracedCallback) (uint32_t size);
 
+
+
+
+
+
+
 private:
   std::set<uint32_t> m_interfaceExclusions; //!< Set of interfaces excluded by OSLR.
   Ptr<Ipv4StaticRouting> m_routingTableAssociation; //!< Associations from an Ipv4StaticRouting instance
 
+  //自分で作成
+  //Ipv4ルーチングプロトコルのentry
+  typedef std::pair<int16_t, Ptr<olsr::RoutingProtocol> > OlsrRoutingProtocolEntry;
+
+  typedef std::list<OlsrRoutingProtocolEntry> OlsrRoutingProtocolList;
+  OlsrRoutingProtocolList m_routingProtocols;
+   //
+
 public:
+
+  //自分で作成
+  std::map<uint32_t, uint32_t> m_resource_sum;//周辺計算機資源量の総和を示す
+  std::map<uint32_t, std::vector<uint8_t>> m_resource_table;
+  std::map<uint32_t, std::vector<Ipv4Address>> resource_duplicated;
+  std::map<Ptr<Node>, Address> m_resource_threshold;//周辺計算機資源量の総和が閾値を超えたノード集合のインスタンスとアドレス
+
+
+  RandSimulation randsimulation;
+
+
+  RandSimulation GetRandInstance ()
+  {
+	  return randsimulation;
+  }
+
+  //virtual void AddRoutingProtocol (Ptr<olsr::RoutingProtocol> routingProtocol, int16_t priority);
+
+  //Ptr<olsr::RoutingProtocol> GetRoutingProtocol (uint32_t index, int16_t& priority) const;
+
+    //
+
+  void SetResourceThreshold (std::map<Ptr<Node>, Address> threshold);
+
+
+  std::map<Ptr<Node>, Address> GetResourceThreshold ()
+  {
+	  return m_resource_threshold;
+  }
+
+
+
   /**
    * Get the excluded interfaces.
    * \returns Container of excluded interfaces.
@@ -242,6 +299,8 @@ protected:
 private:
   std::map<Ipv4Address, RoutingTableEntry> m_table; //!< Data structure for the routing table.
 
+
+
   Ptr<Ipv4StaticRouting> m_hnaRoutingTable; //!< Routing table for HNA routes
 
   EventGarbageCollector m_events; //!< Running events.
@@ -255,6 +314,16 @@ private:
   Time m_midInterval;     //!< MID messages' emission interval.
   Time m_hnaInterval;     //!< HNA messages' emission interval.
   uint8_t m_willingness;  //!<  Willingness for forwarding packets on behalf of other nodes.
+  //自分で付け加えた
+  uint8_t m_resource; //計算機資源量を表す
+  uint32_t m_resource_num; //計算機資源量の具体的な数値を表す
+
+
+  int threshold_duplicate;//周辺計算機資源量の総和が閾値を超えたノード集合のノードIDがかぶっているかを判定
+
+
+
+  //
 
   OlsrState m_state;  //!< Internal state with all needed data structs.
   Ptr<Ipv4> m_ipv4;   //!< IPv4 object the routing is linked to.
@@ -354,6 +423,66 @@ public:
   virtual Ptr<Ipv4> GetIpv4 (void) const;
   virtual void PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit unit = Time::S) const;
 
+  //自分で作成
+  void Resource_Print (Ptr<OutputStreamWrapper> stream, Ptr<Node> node);
+
+  void Resource_sum ();
+
+  //パケット送信に関するもの(ここから)
+    /**
+     * \brief Set the total number of bytes to send.
+     *
+     * Once these bytes are sent, no packet is sent again, even in on state.
+     * The value zero means that there is no limit.
+     *
+     * \param maxBytes the total number of bytes to send
+     */
+    void SetMaxBytes (uint64_t maxBytes);
+
+    /**
+     * \brief Return a pointer to associated socket.
+     * \return pointer to associated socket
+     */
+    Ptr<Socket> GetSocket (void) const;
+
+   /**
+    * \brief Assign a fixed random variable stream number to the random variables
+    * used by this model.
+    *
+    * \param stream first stream index to use
+    * \return the number of stream indices assigned by this model
+    */
+//    int64_t AssignStreams (int64_t stream);
+    //パケット送信に関するもの(ここまで)
+
+    //パケット受信に関するもの(ここから)
+    /**
+     * \return the total bytes received in this sink app
+     */
+    uint64_t GetTotalRx () const;
+
+    /**
+     * \return pointer to listening socket
+     */
+    Ptr<Socket> GetListeningSocket (void) const;
+
+    /**
+     * \return list of pointers to accepted sockets
+     */
+    std::list<Ptr<Socket> > GetAcceptedSockets (void) const;
+
+    /**
+     * TracedCallback signature for a reception with addresses and SeqTsSizeHeader
+     *
+     * \param p The packet received (without the SeqTsSize header)
+     * \param from From address
+     * \param to Local address
+     * \param header The SeqTsSize header
+     */
+    typedef void (* SeqTsSizeCallback)(Ptr<const Packet> p, const Address &from, const Address & to,
+                                     const SeqTsSizeHeader &header);
+    //パケット受信に関するもの(ここまで)
+  //
 
 private:
   virtual void NotifyInterfaceUp (uint32_t interface);
@@ -395,6 +524,171 @@ private:
    * \brief Creates the routing table of the node following \RFC{3626} hints.
    */
   void RoutingTableComputation (void);
+
+
+  //自分で作成
+  //パケット送信に関するもの(ここから)
+    //helpers
+    /**
+     * \brief Cancel all pending events.
+     */
+    void CancelEvents ();
+
+    // Event handlers
+    /**
+     * \brief Start an On period
+     */
+    void StartSending ();
+    /**
+     * \brief Start an Off period
+     */
+    void StopSending ();
+    /**
+     * \brief Send a packet
+     */
+    void SendPacket2 ();
+
+    Ptr<Socket>     m_socket;       //!< Associated socket
+    Ptr<Socket>     m_socket_local;       //!< Associated socket(local)
+    Address         m_peer;         //!< Peer address
+    Address         m_local;        //!< Local address to bind to
+    bool            m_connected;    //!< True if connected
+    Ptr<RandomVariableStream>  m_onTime;       //!< rng for On Time
+    Ptr<RandomVariableStream>  m_offTime;      //!< rng for Off Time
+    DataRate        m_cbrRate;      //!< Rate that data is generated
+    DataRate        m_cbrRateFailSafe;      //!< Rate that data is generated (check copy)
+    uint32_t        m_pktSize;      //!< Size of packets
+    uint32_t        m_residualBits; //!< Number of generated, but not sent, bits
+    Time            m_lastStartTime; //!< Time last packet sent
+    uint64_t        m_maxBytes;     //!< Limit total number of bytes sent
+    uint64_t        m_totBytes;     //!< Total bytes sent so far
+    EventId         m_startStopEvent;     //!< Event id for next start or stop event
+    EventId         m_sendEvent;    //!< Event id of pending "send packet" event
+    TypeId          m_tid;          //!< Type of the socket used
+    uint32_t        m_seq {0};      //!< Sequence
+    Ptr<Packet>     m_unsentPacket; //!< Unsent packet cached for future attempt
+    bool            m_enableSeqTsSizeHeader {false}; //!< Enable or disable the use of SeqTsSizeHeader
+    std::list<Ptr<Socket> > m_socketList; //!< the accepted sockets
+    uint64_t        m_totalRx;      //!< Total bytes received
+
+    //Time task_interval;   //タスクの要求の発生インターバル
+
+
+    /// Traced Callback: transmitted packets.
+    TracedCallback<Ptr<const Packet> > m_txTrace;
+
+    /// Callbacks for tracing the packet Tx events, includes source and destination addresses
+    TracedCallback<Ptr<const Packet>, const Address &, const Address &> m_txTraceWithAddresses;
+
+    /// Callback for tracing the packet Tx events, includes source, destination, the packet sent, and header
+    TracedCallback<Ptr<const Packet>, const Address &, const Address &, const SeqTsSizeHeader &> m_txTraceWithSeqTsSize;
+
+
+    void StopApplication (void);     // Called at time specified by Stop
+
+    //
+
+
+  private:
+
+
+    //自分で作成
+    /**
+     * \brief Schedule the next packet transmission
+     */
+    void ScheduleNextTx ();
+    /**
+     * \brief Schedule the next On period start
+     */
+    void ScheduleStartEvent ();
+    /**
+     * \brief Schedule the next Off period start
+     */
+    void ScheduleStopEvent ();
+    /**
+     * \brief Handle a Connection Succeed event
+     * \param socket the connected socket
+     */
+    void ConnectionSucceeded (Ptr<Socket> socket);
+    /**
+     * \brief Handle a Connection Failed event
+     * \param socket the not connected socket
+     */
+    void ConnectionFailed (Ptr<Socket> socket);
+    //パケット送信に関するもの(ここまで)
+
+    //パケット受信に関するもの(ここから)
+        void HandleRead (Ptr<Socket> socket);
+          /**
+           * \brief Handle an incoming connection
+           * \param socket the incoming connection socket
+           * \param from the address the connection is from
+           */
+          void HandleAccept (Ptr<Socket> socket, const Address& from);
+          /**
+           * \brief Handle an connection close
+           * \param socket the connected socket
+           */
+          void HandlePeerClose (Ptr<Socket> socket);
+          /**
+           * \brief Handle an connection error
+           * \param socket the connected socket
+           */
+          void HandlePeerError (Ptr<Socket> socket);
+
+          /**
+           * \brief Packet received: assemble byte stream to extract SeqTsSizeHeader
+           * \param p received packet
+           * \param from from address
+           * \param localAddress local address
+           *
+           * The method assembles a received byte stream and extracts SeqTsSizeHeader
+           * instances from the stream to export in a trace source.
+           */
+          void PacketReceived (const Ptr<Packet> &p, const Address &from, const Address &localAddress);
+
+          /**
+           * \brief Hashing for the Address class
+           */
+          struct AddressHash
+          {
+            /**
+             * \brief operator ()
+             * \param x the address of which calculate the hash
+             * \return the hash of x
+             *
+             * Should this method go in address.h?
+             *
+             * It calculates the hash taking the uint32_t hash value of the ipv4 address.
+             * It works only for InetSocketAddresses (Ipv4 version)
+             */
+            size_t operator() (const Address &x) const
+            {
+              NS_ABORT_IF (!InetSocketAddress::IsMatchingType (x));
+              InetSocketAddress a = InetSocketAddress::ConvertFrom (x);
+              return std::hash<uint32_t>()(a.GetIpv4 ().Get ());
+            }
+          };
+
+          std::unordered_map<Address, Ptr<Packet>, AddressHash> m_buffer; //!< Buffer for received packets
+
+      //    // In the case of TCP, each socket accept returns a new socket, so the
+      //    // listening socket is stored separately from the accepted sockets
+      //    std::list<Ptr<Socket> > m_socketList; //!< the accepted sockets
+      //    uint64_t        m_totalRx;      //!< Total bytes received
+      //  TypeId          m_tid;          //!< Protocol TypeId
+
+
+          /// Traced Callback: received packets, source address.
+          TracedCallback<Ptr<const Packet>, const Address &> m_rxTrace;
+          /// Callback for tracing the packet Rx events, includes source and destination addresses
+          TracedCallback<Ptr<const Packet>, const Address &, const Address &> m_rxTraceWithAddresses;
+          /// Callbacks for tracing the packet Rx events, includes source, destination addresses, and headers
+          TracedCallback<Ptr<const Packet>, const Address &, const Address &, const SeqTsSizeHeader&> m_rxTraceWithSeqTsSize;
+          //パケット受信に関するもの(ここまで)
+
+
+  //
 
 public:
   /**
@@ -550,6 +844,11 @@ private:
    */
   void SendQueuedMessages (void);
 
+  //自分で作成
+//  void RoutingProtocol::SendQueuedMessages2  (void);
+
+  //
+
   /**
    * \brief Creates a new %OLSR HELLO message which is buffered for being sent later on.
    */
@@ -577,6 +876,11 @@ private:
    *
    * \param tuple link tuple with the information of the link to the neighbor which has been lost.
    */
+
+  //自分で付け加えた(植田)
+  void SendTopology (void);
+  //
+
   void NeighborLoss (const LinkTuple &tuple);
 
   /**
@@ -763,6 +1067,18 @@ private:
    * \param receiverIface The interface that received the message.
    * \param senderIface The sender interface.
    */
+
+  //自分で作成
+  void Resource_Store (const Ipv4Address &receiverIface,
+		  	  	  	  	  const olsr::MessageHeader::Hello &hello);
+
+
+
+
+  void node_sink ();
+
+  //
+
   void LinkSensing (const olsr::MessageHeader &msg,
                     const olsr::MessageHeader::Hello &hello,
                     const Ipv4Address &receiverIface,

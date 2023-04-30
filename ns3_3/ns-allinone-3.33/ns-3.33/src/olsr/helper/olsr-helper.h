@@ -20,12 +20,16 @@
 #ifndef OLSR_HELPER_H
 #define OLSR_HELPER_H
 
+
+#include "olsr-helper.h"
+#include "ns3/olsr-routing-protocol.h"
 #include "ns3/object-factory.h"
 #include "ns3/node.h"
 #include "ns3/node-container.h"
 #include "ns3/ipv4-routing-helper.h"
 #include <map>
 #include <set>
+#include <vector>
 
 namespace ns3 {
 
@@ -97,6 +101,23 @@ public:
    */
   int64_t AssignStreams (NodeContainer c, int64_t stream);
 
+  //自分で作成
+  static void PrintResourceAll (Time printInterval, Ptr<OutputStreamWrapper> stream);
+
+  static void PrintResource (Time printInterval, Ptr<Node> node, Ptr<OutputStreamWrapper> streamt);
+
+  uint32_t ResourceAll ();
+
+//  std::map<Ptr<Node>, Address> GetThreshold (Ptr<Node> node);
+
+  void Add (const OlsrHelper &routing, int16_t priority);
+
+
+//  Ptr<olsr::RoutingProtocol> GetRoutingProtocol_2 (uint32_t index, int16_t& priority) const;
+//
+//  Ptr<olsr::RoutingProtocol> Create_2 (Ptr<Node> node) const;
+
+
 private:
   /**
    * \brief Assignment operator declared private and not implemented to disallow
@@ -105,6 +126,11 @@ private:
    */
   OlsrHelper &operator = (const OlsrHelper &);
   ObjectFactory m_agentFactory; //!< Object factory
+
+
+  std::list<std::pair<const OlsrHelper *,int16_t> > m_list;
+
+
 
   std::map< Ptr<Node>, std::set<uint32_t> > m_interfaceExclusions; //!< container of interfaces excluded from OLSR operations
 };

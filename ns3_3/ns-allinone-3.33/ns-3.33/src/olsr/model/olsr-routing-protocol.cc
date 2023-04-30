@@ -32,7 +32,7 @@
   if (GetObject<Node> ()) { std::clog << "[node " << GetObject<Node> ()->GetId () << "] "; }
 
 
-#include "olsr-routing-protocol.h"
+#include "ns3/olsr-routing-protocol.h"
 #include "ns3/socket-factory.h"
 #include "ns3/udp-socket-factory.h"
 #include "ns3/simulator.h"
@@ -48,6 +48,26 @@
 #include "ns3/trace-source-accessor.h"
 #include "ns3/ipv4-header.h"
 #include "ns3/ipv4-packet-info-tag.h"
+
+
+#include "ns3/random-variable-stream.h"
+#include "ns3/wifi-net-device.h"
+#include "ns3/adhoc-wifi-mac.h"
+#include "ns3/string.h"
+#include "ns3/pointer.h"
+#include <random>
+
+#include "ns3/rand-simulation.h"
+
+#include "ns3/simulation-proposal.h"
+#include "ns3/packet-socket-address.h"
+#include "ns3/udp-socket.h"
+#include "ns3/address-utils.h"
+#include "ns3/socket.h"
+
+
+
+
 
 /********** Useful macros **********/
 
@@ -117,6 +137,36 @@
 /// Willingness for forwarding packets from other nodes: always.
 #define OLSR_WILL_ALWAYS        7
 
+//自分で作成
+/// Resource
+#define OLSR_Resource_0         0
+#define OLSR_Resource_1         1
+#define OLSR_Resource_2         2
+#define OLSR_Resource_3         3
+#define OLSR_Resource_4         4
+#define OLSR_Resource_5         5
+#define OLSR_Resource_6         6
+#define OLSR_Resource_7         7
+#define OLSR_Resource_8         8
+#define OLSR_Resource_9         9
+#define OLSR_Resource_10       10
+#define OLSR_Resource_11       11
+#define OLSR_Resource_12       12
+#define OLSR_Resource_13       13
+#define OLSR_Resource_14       14
+#define OLSR_Resource_15       15
+#define OLSR_Resource_16       16
+#define OLSR_Resource_17       17
+#define OLSR_Resource_18       18
+#define OLSR_Resource_19       19
+#define OLSR_Resource_20       20
+
+//randomの上限・下限作成
+#define RANDOM_MAX 500000000
+#define RANDOM_MIN 5000000
+//
+
+
 
 /********** Miscellaneous constants **********/
 
@@ -159,19 +209,19 @@ RoutingProtocol::GetTypeId (void)
     .SetGroupName ("Olsr")
     .AddConstructor<RoutingProtocol> ()
     .AddAttribute ("HelloInterval", "HELLO messages emission interval.",
-                   TimeValue (Seconds (2)),
+                   TimeValue (Seconds (10)),
                    MakeTimeAccessor (&RoutingProtocol::m_helloInterval),
                    MakeTimeChecker ())
     .AddAttribute ("TcInterval", "TC messages emission interval.",
-                   TimeValue (Seconds (5)),
+                   TimeValue (Seconds (20)),
                    MakeTimeAccessor (&RoutingProtocol::m_tcInterval),
                    MakeTimeChecker ())
     .AddAttribute ("MidInterval", "MID messages emission interval.  Normally it is equal to TcInterval.",
-                   TimeValue (Seconds (5)),
+                   TimeValue (Seconds (20)),
                    MakeTimeAccessor (&RoutingProtocol::m_midInterval),
                    MakeTimeChecker ())
     .AddAttribute ("HnaInterval", "HNA messages emission interval.  Normally it is equal to TcInterval.",
-                   TimeValue (Seconds (5)),
+                   TimeValue (Seconds (20)),
                    MakeTimeAccessor (&RoutingProtocol::m_hnaInterval),
                    MakeTimeChecker ())
     .AddAttribute ("Willingness", "Willingness of a node to carry and forward traffic for other nodes.",
@@ -182,6 +232,33 @@ RoutingProtocol::GetTypeId (void)
                                     OLSR_WILL_DEFAULT, "default",
                                     OLSR_WILL_HIGH, "high",
                                     OLSR_WILL_ALWAYS, "always"))
+//自分で作成
+	.AddAttribute ("Resource", "Resource for nodes.",
+	              EnumValue (OLSR_Resource_8),
+				  	MakeEnumAccessor (&RoutingProtocol::m_resource),
+					MakeEnumChecker(OLSR_Resource_0, "0",
+									  OLSR_Resource_1, "1",
+									  OLSR_Resource_2, "2",
+									  OLSR_Resource_3, "3",
+									  OLSR_Resource_4, "4",
+									  OLSR_Resource_5, "5",
+									  OLSR_Resource_6, "6",
+									  OLSR_Resource_7, "7",
+									  OLSR_Resource_8, "8",
+									  OLSR_Resource_9, "9",
+									  OLSR_Resource_10, "10",
+									  OLSR_Resource_11, "11",
+									  OLSR_Resource_12, "12",
+									  OLSR_Resource_13, "13",
+									  OLSR_Resource_14, "14",
+									  OLSR_Resource_15, "15",
+									  OLSR_Resource_16, "16",
+									  OLSR_Resource_17, "17",
+									  OLSR_Resource_18, "18",
+									  OLSR_Resource_19, "19",
+									  OLSR_Resource_20, "20"))
+//
+
     .AddTraceSource ("Rx", "Receive OLSR packet.",
                      MakeTraceSourceAccessor (&RoutingProtocol::m_rxPacketTrace),
                      "ns3::olsr::RoutingProtocol::PacketTxRxTracedCallback")
@@ -199,12 +276,22 @@ RoutingProtocol::GetTypeId (void)
 RoutingProtocol::RoutingProtocol (void)
   : m_routingTableAssociation (0),
   m_ipv4 (0),
+  m_socket (0),
+  m_socket_local (0),
+  m_connected (false),
+  m_residualBits (0),
+  m_lastStartTime (Seconds (0)),
+  m_totBytes (0),
+  m_unsentPacket (0),
   m_helloTimer (Timer::CANCEL_ON_DESTROY),
   m_tcTimer (Timer::CANCEL_ON_DESTROY),
   m_midTimer (Timer::CANCEL_ON_DESTROY),
   m_hnaTimer (Timer::CANCEL_ON_DESTROY),
   m_queuedMessagesTimer (Timer::CANCEL_ON_DESTROY)
 {
+
+  m_totalRx = 0;
+
   m_uniformRandomVariable = CreateObject<UniformRandomVariable> ();
 
   m_hnaRoutingTable = Create<Ipv4StaticRouting> ();
@@ -226,6 +313,8 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   m_hnaTimer.SetFunction (&RoutingProtocol::HnaTimerExpire, this);
   m_queuedMessagesTimer.SetFunction (&RoutingProtocol::SendQueuedMessages, this);
 
+
+
   m_packetSequenceNumber = OLSR_MAX_SEQ_NUM;
   m_messageSequenceNumber = OLSR_MAX_SEQ_NUM;
   m_ansn = OLSR_MAX_SEQ_NUM;
@@ -235,6 +324,19 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   m_ipv4 = ipv4;
 
   m_hnaRoutingTable->SetIpv4 (ipv4);
+
+  //自分で作成
+  int resource_flag = 0;
+
+    RandSimulation randsimu;
+    if(resource_flag==0){
+  	  randsimu.rand_node();
+  	  m_resource_num = randsimu.randnode[m_ipv4->GetObject<Node> ()->GetId ()];
+  	  m_resource = m_resource_num/25000000;
+  	  resource_flag = 1;
+    }
+    randsimulation = randsimu;
+    //
 }
 
 Ptr<Ipv4>
@@ -294,6 +396,30 @@ RoutingProtocol::PrintRoutingTable (Ptr<OutputStreamWrapper> stream, Time::Unit 
       *os << iter->second.distance << "\t";
       *os << "\n";
     }
+
+  //
+//  if(m_sink_table.size()==0){
+//	  *os<<"no"<<std::endl;
+//  }
+//  for (std::vector<RoutingTableEntry>::const_iterator iter = m_sink_table.begin ();
+//         iter != m_sink_table.end (); iter++)
+//      {
+//        *os << iter->destAddr<< "\t\t";
+//        *os << iter->nextAddr << "\t\t";
+//        if (Names::FindName (m_ipv4->GetNetDevice (iter->interface)) != "")
+//          {
+//            *os << Names::FindName (m_ipv4->GetNetDevice (iter->interface)) << "\t\t";
+//          }
+//        else
+//          {
+//            *os << iter->interface << "\t\t";
+//          }
+//        *os << iter->distance << "\t";
+//        *os << "\n";
+//      }
+//
+//
+
 
   // Also print the HNA routing table
   if (m_hnaRoutingTable->GetNRoutes () > 0)
@@ -387,6 +513,11 @@ void RoutingProtocol::DoInitialize ()
       socket->SetRecvPktInfo (true);
       m_sendSockets[socket] = m_ipv4->GetAddress (i, 0);
 
+      //自分で作成
+      m_resource_table[m_ipv4->GetObject<Node> ()->GetId ()].push_back(m_resource);
+      //
+
+
       canRunOlsr = true;
     }
 
@@ -404,7 +535,10 @@ void RoutingProtocol::DoInitialize ()
 void RoutingProtocol::SetMainInterface (uint32_t interface)
 {
   m_mainAddress = m_ipv4->GetAddress (interface, 0).GetLocal ();
+
 }
+
+
 
 void RoutingProtocol::SetInterfaceExclusions (std::set<uint32_t> exceptions)
 {
@@ -525,6 +659,7 @@ RoutingProtocol::RecvOlsr (Ptr<Socket> socket)
                             << " OLSR node " << m_mainAddress
                             << " received HELLO message of size " << messageHeader.GetSerializedSize ());
               ProcessHello (messageHeader, receiverIfaceAddr, senderIfaceAddr);
+
               break;
 
             case olsr::MessageHeader::TC_MESSAGE:
@@ -585,6 +720,12 @@ RoutingProtocol::RecvOlsr (Ptr<Socket> socket)
 
   // After processing all OLSR messages, we must recompute the routing table
   RoutingTableComputation ();
+
+  //自分で追加
+  Resource_sum ();
+
+
+  //
 }
 
 ///
@@ -852,6 +993,10 @@ RoutingProtocol::MprComputation  (void)
       // through this 1-hop neighbor
       std::map<int, std::vector<const NeighborTuple *> > reachability;
       std::set<int> rs;
+
+
+
+
       for (NeighborSet::iterator it = N.begin (); it != N.end (); it++)
         {
           NeighborTuple const &nb_tuple = *it;
@@ -913,6 +1058,8 @@ RoutingProtocol::MprComputation  (void)
             }
         }
 
+
+
       if (max != NULL)
         {
           mprSet.insert (max->neighborMainAddr);
@@ -940,6 +1087,9 @@ RoutingProtocol::MprComputation  (void)
     NS_LOG_DEBUG ("Computed MPR set for node " << m_mainAddress << ": " << os.str ());
   }
 #endif  //NS3_LOG_ENABLE
+
+
+
 
   m_state.SetMprSet (mprSet);
 }
@@ -1286,6 +1436,11 @@ RoutingProtocol::ProcessHello (const olsr::MessageHeader &msg,
 
   const olsr::MessageHeader::Hello &hello = msg.GetHello ();
 
+  //自分で作成
+  Resource_Store(senderIface, hello);
+
+  //
+
   LinkSensing (msg, hello, receiverIface, senderIface);
 
 #ifdef NS3_LOG_ENABLE
@@ -1337,6 +1492,7 @@ RoutingProtocol::ProcessTc (const olsr::MessageHeader &msg,
 {
   const olsr::MessageHeader::Tc &tc = msg.GetTc ();
   Time now = Simulator::Now ();
+
 
   // 1. If the sender interface of this message is not in the symmetric
   // 1-hop neighborhood of this node, the message MUST be discarded.
@@ -1405,6 +1561,7 @@ RoutingProtocol::ProcessTc (const olsr::MessageHeader &msg,
                                                topologyTuple.lastAddr));
         }
     }
+
 
 #ifdef NS3_LOG_ENABLE
   {
@@ -1708,6 +1865,10 @@ RoutingProtocol::SendHello  (void)
   hello.SetHTime (m_helloInterval);
   hello.willingness = m_willingness;
 
+  //自分で付け加えた
+  hello.resource = m_resource;
+  //
+
   std::vector<olsr::MessageHeader::Hello::LinkMessage>
   &linkMessages = hello.linkMessages;
 
@@ -1805,6 +1966,9 @@ RoutingProtocol::SendTc  (void)
 
   olsr::MessageHeader msg;
 
+//  //自分で作成
+//  threshold_flag = 1;
+
   msg.SetVTime (OLSR_TOP_HOLD_TIME);
   msg.SetOriginatorAddress (m_mainAddress);
   msg.SetTimeToLive (255);
@@ -1819,6 +1983,9 @@ RoutingProtocol::SendTc  (void)
     {
       tc.neighborAddresses.push_back (mprsel_tuple->mainAddr);
     }
+
+
+
   QueueMessage (msg, JITTER);
 }
 
@@ -1981,6 +2148,693 @@ RoutingProtocol::UsesNonOlsrOutgoingInterface (const Ipv4RoutingTableEntry &rout
   // before reaching the end of the list of excluded interfaces
   return ci != m_interfaceExclusions.end ();
 }
+
+//自分で作成
+
+void
+RoutingProtocol::Resource_Store (const Ipv4Address &senderIface,
+		  	  	  	  	  	  	  	 const olsr::MessageHeader::Hello &hello)
+{
+	int dupli = 0;
+	//int dupli_len = resource_duplicated.size();
+
+	std::vector<Ipv4Address> provisional = resource_duplicated[m_ipv4->GetObject<Node> ()->GetId ()];
+	int len = provisional.size();
+	for(int i =0; i != len; i++){
+		if(provisional[i] == senderIface || senderIface == "10.1.1.1"){
+				dupli = 1;
+		}
+	}
+
+	if(dupli == 0){
+		m_resource_table[m_ipv4->GetObject<Node> ()->GetId ()].push_back(hello.resource);
+		resource_duplicated[m_ipv4->GetObject<Node> ()->GetId ()].push_back(senderIface);
+	}
+
+	dupli = 0;
+}
+
+void
+RoutingProtocol::Resource_Print (Ptr<OutputStreamWrapper> stream, Ptr<Node> node)
+{
+
+	std::ostream* os = stream->GetStream ();
+//	uint8_t iter_sum;
+	uint32_t x_sum;
+	x_sum = 0;
+	*os << "Node : " << m_ipv4->GetObject<Node> ()->GetId () << " ";
+
+	for(std::vector<uint8_t>::iterator iter = m_resource_table[m_ipv4->GetObject<Node> ()->GetId ()].begin();
+			iter != m_resource_table[m_ipv4->GetObject<Node> ()->GetId ()].end(); iter++){
+		if(m_ipv4->GetObject<Node> ()->GetId ()==0){
+			continue;
+		}
+		uint32_t x = (uint32_t)*iter;
+//		x_sum = x + x_sum;
+		*os  << "resource : " << x << " ";
+	}
+	//x_sum = (uint32_t)*iter_sum;
+
+	x_sum = m_resource_sum[m_ipv4->GetObject<Node> ()->GetId ()];
+	if(m_ipv4->GetObject<Node> ()->GetId ()!=0){
+		*os << "      resource_sum : " << x_sum << " ";
+	}
+	//m_resource_sum = x_sum;
+	*os << std::endl;
+
+}
+
+void
+RoutingProtocol::Resource_sum(){
+	//int64_t stream = m_uniformRandomVariable->GetStream();
+	uint32_t x_sum;
+	x_sum = 0;
+	std::map<Ptr<Node>, Address> threshold;
+
+	for(std::vector<uint8_t>::iterator iter = m_resource_table[m_ipv4->GetObject<Node> ()->GetId ()].begin();
+			iter != m_resource_table[m_ipv4->GetObject<Node> ()->GetId ()].end(); iter++){
+		if(m_ipv4->GetObject<Node> ()->GetId ()==0){
+			continue;
+		}
+		uint32_t x = (uint32_t)*iter;
+		x_sum = x + x_sum;
+	}
+	threshold_duplicate=0;
+	m_resource_sum[m_ipv4->GetObject<Node> ()->GetId ()] = x_sum;
+	for(std::map<Ptr<Node>, Address>::iterator iter = threshold.begin();iter != threshold.end();
+			iter++){
+		if(iter->first==m_ipv4->GetObject<Node> ()){
+			threshold_duplicate=1;
+		}
+	}
+	InetSocketAddress inetAddr (m_mainAddress, 49152 + m_ipv4->GetObject<Node> ()->GetId ());
+	if(threshold_duplicate==0){
+		if(x_sum>=50){//閾値を50としている
+			m_resource_threshold.insert(std::make_pair(m_ipv4->GetObject<Node> (), inetAddr));
+		}
+	}
+	if (m_resource_threshold.size()==0){
+		NS_ASSERT(m_resource_threshold.size()==0);
+	}
+
+//	std::cout<<m_resource_threshold.size()<<std::endl;
+}
+
+
+//void
+//SetResourceThreshold (std::map<Ptr<Node>, Address> threshold)
+//{
+//	m_node_threshold = threshold;
+//}
+
+
+
+//void
+//RoutingProtocol::SetMaxBytes (uint64_t maxBytes)
+//{
+//  NS_LOG_FUNCTION (this << maxBytes);
+//  m_maxBytes = maxBytes;
+//}
+//
+//Ptr<Socket>
+//RoutingProtocol::GetSocket (void) const
+//{
+//  NS_LOG_FUNCTION (this);
+//  return m_socket_local;
+//}
+//
+////int64_t
+////RoutingProtocol::AssignStreams (int64_t stream)
+////{
+////  NS_LOG_FUNCTION (this << stream);
+////  m_onTime->SetStream (stream);
+////  m_offTime->SetStream (stream + 1);
+////  return 2;
+////}
+//
+//
+//Ptr<Socket>
+//RoutingProtocol::GetListeningSocket (void) const
+//{
+//  NS_LOG_FUNCTION (this);
+//  return m_socket;
+//}
+//
+//std::list<Ptr<Socket> >
+//RoutingProtocol::GetAcceptedSockets (void) const
+//{
+//  NS_LOG_FUNCTION (this);
+//  return m_socketList;
+//}
+//
+//
+////void
+////RoutingProtocol::DoDispose (void)
+////{
+////  NS_LOG_FUNCTION (this);
+////
+////  CancelEvents ();
+////  m_socket = 0;
+////  m_socket_local = 0;
+////  m_unsentPacket = 0;
+////  m_socketList.clear ();
+////  // chain up
+////  Application::DoDispose ();
+////}
+//
+//
+//
+//
+//
+//
+//
+//
+//void
+//RoutingProtocol::node_sink(){
+//	if(m_resource_threshold.size()!=0){
+//		  for(std::map<Ptr<Node>, Address>::iterator iter = m_resource_threshold.begin ();
+//			       iter != m_resource_threshold.end (); iter++)
+//		  {
+//			  m_local = iter->second;
+//			  //listen
+//			  // Create the socket if not already
+//			  if (!m_socket)
+//				{
+//				  m_socket = Socket::CreateSocket (GetObject<Node> (), m_tid);
+//				  if (m_socket->Bind (m_local) == -1)
+//					{
+//					  NS_FATAL_ERROR ("Failed to bind socket");
+//					}
+//				  m_socket->Listen ();
+//				  m_socket->ShutdownSend ();
+//				  if (addressUtils::IsMulticast (m_local))
+//					{
+//					  Ptr<UdpSocket> udpSocket = DynamicCast<UdpSocket> (m_socket);
+//					  if (udpSocket)
+//						{
+//						  // equivalent to setsockopt (MCAST_JOIN_GROUP)
+//						  udpSocket->MulticastJoinGroup (0, m_local);
+//						}
+//					  else
+//						{
+//						  NS_FATAL_ERROR ("Error: joining multicast on a non-UDP socket");
+//						}
+//					}
+//				}
+//
+//			  m_socket->SetRecvCallback (MakeCallback (&RoutingProtocol::HandleRead, this));
+//			  m_socket->SetAcceptCallback (
+//				MakeNullCallback<bool, Ptr<Socket>, const Address &> (),
+//				MakeCallback (&RoutingProtocol::HandleAccept, this));
+//			  m_socket->SetCloseCallbacks (
+//				MakeCallback (&RoutingProtocol::HandlePeerClose, this),
+//				MakeCallback (&RoutingProtocol::HandlePeerError, this));
+//
+//			  //send
+//			  // Create the socket if not already
+//			  if (!m_socket_local)
+//				{
+//				  m_socket_local = Socket::CreateSocket (iter->first, m_tid);
+//				  int ret = -1;
+//
+//				  if (! m_local.IsInvalid())
+//					{
+//					  NS_ABORT_MSG_IF ((Inet6SocketAddress::IsMatchingType (m_peer) && InetSocketAddress::IsMatchingType (m_local)) ||
+//									   (InetSocketAddress::IsMatchingType (m_peer) && Inet6SocketAddress::IsMatchingType (m_local)),
+//									   "Incompatible peer and local address IP version");
+//					  ret = m_socket_local->Bind (m_local);
+//					}
+//				  else
+//					{
+//					  if (Inet6SocketAddress::IsMatchingType (m_peer))
+//						{
+//						  ret = m_socket_local->Bind6 ();
+//						}
+//					  else if (InetSocketAddress::IsMatchingType (m_peer) ||
+//							    PacketSocketAddress::IsMatchingType (m_peer))
+//						{
+//						  ret = m_socket_local->Bind ();
+//						}
+//					}
+//
+//				  if (ret == -1)
+//					{
+//					  NS_FATAL_ERROR ("Failed to bind socket");
+//					}
+//
+//				  m_socket_local->Connect (m_peer);
+//				  m_socket_local->SetAllowBroadcast (true);
+//				  m_socket_local->ShutdownRecv ();
+//
+//				  m_socket_local->SetConnectCallback (
+//					MakeCallback (&RoutingProtocol::ConnectionSucceeded, this),
+//					MakeCallback (&RoutingProtocol::ConnectionFailed, this));
+//				}
+//			  m_cbrRateFailSafe = m_cbrRate;
+//
+//			  // Insure no pending event
+//			  CancelEvents ();
+//			  // If we are not yet connected, there is nothing to do here
+//			  // The ConnectionComplete upcall will start timers at that time
+//			  //if (!m_connected) return;
+//			  ScheduleStartEvent ();
+//
+//	  	  }
+//	  }
+//
+//}
+//
+//
+//void
+//RoutingProtocol::StopApplication () // Called at time specified by Stop
+//{
+//  NS_LOG_FUNCTION (this);
+//
+//  CancelEvents ();
+//
+//  //listen
+//  while(!m_socketList.empty ()) //these are accepted sockets, close them
+//      {
+//        Ptr<Socket> acceptedSocket = m_socketList.front ();
+//        m_socketList.pop_front ();
+//        acceptedSocket->Close ();
+//      }
+//    if (m_socket)
+//      {
+//        m_socket->Close ();
+//        m_socket->SetRecvCallback (MakeNullCallback<void, Ptr<Socket> > ());
+//      }
+//
+//  //send
+//  if(m_socket_local != 0)
+//    {
+//      m_socket_local->Close ();
+//    }
+//  else
+//    {
+//      NS_LOG_WARN ("simulation_proposal found null socket to close in StopApplication");
+//    }
+//}
+//
+//void
+//RoutingProtocol::CancelEvents ()
+//{
+//  NS_LOG_FUNCTION (this);
+//
+//  if (m_sendEvent.IsRunning () && m_cbrRateFailSafe == m_cbrRate )
+//    { // Cancel the pending send packet event
+//      // Calculate residual bits since last packet sent
+//      Time delta (Simulator::Now () - m_lastStartTime);
+//      int64x64_t bits = delta.To (Time::S) * m_cbrRate.GetBitRate ();
+//      m_residualBits += bits.GetHigh ();
+//    }
+//  m_cbrRateFailSafe = m_cbrRate;
+//  Simulator::Cancel (m_sendEvent);
+//  Simulator::Cancel (m_startStopEvent);
+//  // Canceling events may cause discontinuity in sequence number if the
+//  // SeqTsSizeHeader is header, and m_unsentPacket is true
+//  if (m_unsentPacket)
+//    {
+//      NS_LOG_DEBUG ("Discarding cached packet upon CancelEvents ()");
+//    }
+//  m_unsentPacket = 0;
+//}
+//
+//// Event handlers
+//void
+//RoutingProtocol::StartSending ()
+//{
+//  NS_LOG_FUNCTION (this);
+//  m_lastStartTime = Simulator::Now ();
+//  ScheduleNextTx ();  // Schedule the send packet event
+//  ScheduleStopEvent ();
+//}
+//
+//void
+//RoutingProtocol::StopSending ()
+//{
+//  NS_LOG_FUNCTION (this);
+//  CancelEvents ();
+//
+//  ScheduleStartEvent ();
+//}
+//
+//// Private helpers
+//void
+//RoutingProtocol::ScheduleNextTx ()
+//{
+//  NS_LOG_FUNCTION (this);
+//
+//  if (m_maxBytes == 0 || m_totBytes < m_maxBytes)
+//    {
+//      NS_ABORT_MSG_IF (m_residualBits > m_pktSize * 8, "Calculation to compute next send time will overflow");
+//      uint32_t bits = m_pktSize * 8 - m_residualBits;
+//      NS_LOG_LOGIC ("bits = " << bits);
+//      Time nextTime (Seconds (bits /
+//                              static_cast<double>(m_cbrRate.GetBitRate ()))); // Time till next packet
+//      NS_LOG_LOGIC ("nextTime = " << nextTime.As (Time::S));
+//      m_sendEvent = Simulator::Schedule (nextTime,
+//                                         &RoutingProtocol::SendPacket2, this);
+//    }
+//  else
+//    { // All done, cancel any pending events
+//      StopApplication ();
+//    }
+//}
+//
+//void
+//RoutingProtocol::ScheduleStartEvent ()
+//{  // Schedules the event to start sending data (switch to the "On" state)
+//  NS_LOG_FUNCTION (this);
+//
+//  Time offInterval = Seconds (m_offTime->GetValue ());
+//  NS_LOG_LOGIC ("start at " << offInterval.As (Time::S));
+//  m_startStopEvent = Simulator::Schedule (offInterval, &RoutingProtocol::StartSending, this);
+//}
+//
+//void
+//RoutingProtocol::ScheduleStopEvent ()
+//{  // Schedules the event to stop sending data (switch to "Off" state)
+//  NS_LOG_FUNCTION (this);
+//
+//  Time onInterval = Seconds (m_onTime->GetValue ());
+//  NS_LOG_LOGIC ("stop at " << onInterval.As (Time::S));
+//  m_startStopEvent = Simulator::Schedule (onInterval, &RoutingProtocol::StopSending, this);
+//}
+//
+//
+//void
+//RoutingProtocol::SendPacket2 ()
+//{
+//  NS_LOG_FUNCTION (this);
+//
+//  NS_ASSERT (m_sendEvent.IsExpired ());
+//
+//
+//  olsr::MessageHeader msg;
+//
+//  msg.SetVTime (OLSR_TOP_HOLD_TIME);
+//  msg.SetOriginatorAddress (m_mainAddress);
+//  msg.SetTimeToLive (255);
+//  msg.SetHopCount (0);
+//  msg.SetMessageSequenceNumber (GetMessageSequenceNumber ());
+//
+//  olsr::MessageHeader::Tc &tc = msg.GetTc ();
+//  tc.ansn = m_ansn;
+//
+//  for (MprSelectorSet::const_iterator mprsel_tuple = m_state.GetMprSelectors ().begin ();
+//         mprsel_tuple != m_state.GetMprSelectors ().end (); mprsel_tuple++)
+//    {
+//      tc.neighborAddresses.push_back (mprsel_tuple->mainAddr);
+//    }
+//
+//
+//
+//    QueueMessage (msg, JITTER);
+//
+//
+//  Ptr<Packet> packet = Create<Packet> ();
+//   int numMessages = 0;
+//
+//   NS_LOG_DEBUG ("Olsr node " << m_mainAddress << ": SendQueuedMessages");
+//
+//   MessageList msglist;
+//
+//   for (std::vector<olsr::MessageHeader>::const_iterator message = m_queuedMessages.begin ();
+//        message != m_queuedMessages.end ();
+//        message++)
+//     {
+//       Ptr<Packet> p = Create<Packet> ();
+//       p->AddHeader (*message);
+//       packet->AddAtEnd (p);
+//       msglist.push_back (*message);
+//       if (++numMessages == OLSR_MAX_MSGS)
+//         {
+//           SendPacket (packet, msglist);
+//           msglist.clear ();
+//           // Reset variables for next packet
+//           numMessages = 0;
+//           packet = Create<Packet> ();
+//         }
+//     }
+//
+//   if (packet->GetSize ())
+//     {
+//       SendPacket (packet, msglist);
+//     }
+//
+//   m_queuedMessages.clear ();
+//
+//
+//
+//  Ptr<Packet> packet;
+//  if (m_unsentPacket)
+//    {
+//      packet = m_unsentPacket;
+//    }
+//  else if (m_enableSeqTsSizeHeader)
+//    {
+//      Address from, to;
+//      m_socket_local->GetSockName (from);
+//      m_socket_local->GetPeerName (to);
+//      SeqTsSizeHeader header;
+//      header.SetSeq (m_seq++);
+//      header.SetSize (m_pktSize);
+//      NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
+//      packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
+//      // Trace before adding header, for consistency with PacketSink
+//      m_txTraceWithSeqTsSize (packet, from, to, header);
+//      packet->AddHeader (header);
+//    }
+//  else
+//    {
+//      packet = Create<Packet> (m_pktSize);
+//    }
+//
+//  int actual = m_socket_local->Send (packet);
+//  if ((unsigned) actual == m_pktSize)
+//    {
+//      m_txTrace (packet);
+//      m_totBytes += m_pktSize;
+//      m_unsentPacket = 0;
+//      Address localAddress;
+//      m_socket_local->GetSockName (localAddress);
+//      if (InetSocketAddress::IsMatchingType (m_peer))
+//        {
+//          NS_LOG_INFO ("At time " << Simulator::Now ().As (Time::S)
+//                       << " on-off application sent "
+//                       <<  packet->GetSize () << " bytes to "
+//                       << InetSocketAddress::ConvertFrom(m_peer).GetIpv4 ()
+//                       << " port " << InetSocketAddress::ConvertFrom (m_peer).GetPort ()
+//                       << " total Tx " << m_totBytes << " bytes");
+//          m_txTraceWithAddresses (packet, localAddress, InetSocketAddress::ConvertFrom (m_peer));
+//        }
+//      else if (Inet6SocketAddress::IsMatchingType (m_peer))
+//        {
+//          NS_LOG_INFO ("At time " << Simulator::Now ().As (Time::S)
+//                       << " on-off application sent "
+//                       <<  packet->GetSize () << " bytes to "
+//                       << Inet6SocketAddress::ConvertFrom(m_peer).GetIpv6 ()
+//                       << " port " << Inet6SocketAddress::ConvertFrom (m_peer).GetPort ()
+//                       << " total Tx " << m_totBytes << " bytes");
+//          m_txTraceWithAddresses (packet, localAddress, Inet6SocketAddress::ConvertFrom(m_peer));
+//        }
+//    }
+//  else
+//    {
+//      NS_LOG_DEBUG ("Unable to send packet; actual " << actual << " size " << m_pktSize << "; caching for later attempt");
+//      m_unsentPacket = packet;
+//    }
+//  m_residualBits = 0;
+//  m_lastStartTime = Simulator::Now ();
+//  ScheduleNextTx ();
+//}
+//
+//
+//void
+//RoutingProtocol::ConnectionSucceeded (Ptr<Socket> socket)
+//{
+//  NS_LOG_FUNCTION (this << socket);
+//  m_connected = true;
+//}
+//
+//void
+//RoutingProtocol::ConnectionFailed (Ptr<Socket> socket)
+//{
+//  NS_LOG_FUNCTION (this << socket);
+//  NS_FATAL_ERROR ("Can't connect");
+//}
+//
+//void
+//RoutingProtocol::HandleRead (Ptr<Socket> socket)
+//{
+//  NS_LOG_FUNCTION (this << socket);
+//  Ptr<Packet> packet;
+//  Address from;
+//  Address localAddress;
+//  while ((packet = socket->RecvFrom (from)))
+//    {
+//      if (packet->GetSize () == 0)
+//        { //EOF
+//          break;
+//        }
+//      m_totalRx += packet->GetSize ();
+//      if (InetSocketAddress::IsMatchingType (from))
+//        {
+//          NS_LOG_INFO ("At time " << Simulator::Now ().As (Time::S)
+//                       << " packet sink received "
+//                       <<  packet->GetSize () << " bytes from "
+//                       << InetSocketAddress::ConvertFrom(from).GetIpv4 ()
+//                       << " port " << InetSocketAddress::ConvertFrom (from).GetPort ()
+//                       << " total Rx " << m_totalRx << " bytes");
+//        }
+//      else if (Inet6SocketAddress::IsMatchingType (from))
+//        {
+//          NS_LOG_INFO ("At time " << Simulator::Now ().As (Time::S)
+//                       << " packet sink received "
+//                       <<  packet->GetSize () << " bytes from "
+//                       << Inet6SocketAddress::ConvertFrom(from).GetIpv6 ()
+//                       << " port " << Inet6SocketAddress::ConvertFrom (from).GetPort ()
+//                       << " total Rx " << m_totalRx << " bytes");
+//        }
+//      socket->GetSockName (localAddress);
+//      m_rxTrace (packet, from);
+//      m_rxTraceWithAddresses (packet, from, localAddress);
+//
+//      if (m_enableSeqTsSizeHeader)
+//        {
+//          PacketReceived (packet, from, localAddress);
+//        }
+//    }
+//}
+//
+//void
+//RoutingProtocol::PacketReceived (const Ptr<Packet> &p, const Address &from,
+//                            const Address &localAddress)
+//{
+//  SeqTsSizeHeader header;
+//  Ptr<Packet> buffer;
+//
+//  auto itBuffer = m_buffer.find (from);
+//  if (itBuffer == m_buffer.end ())
+//    {
+//      itBuffer = m_buffer.insert (std::make_pair (from, Create<Packet> (0))).first;
+//    }
+//
+//  buffer = itBuffer->second;
+//  buffer->AddAtEnd (p);
+//  buffer->PeekHeader (header);
+//
+//  NS_ABORT_IF (header.GetSize () == 0);
+//
+//  while (buffer->GetSize () >= header.GetSize ())
+//    {
+//      NS_LOG_DEBUG ("Removing packet of size " << header.GetSize () << " from buffer of size " << buffer->GetSize ());
+//      Ptr<Packet> complete = buffer->CreateFragment (0, static_cast<uint32_t> (header.GetSize ()));
+//      buffer->RemoveAtStart (static_cast<uint32_t> (header.GetSize ()));
+//
+//      complete->RemoveHeader (header);
+//
+//      m_rxTraceWithSeqTsSize (complete, from, localAddress, header);
+//
+//      if (buffer->GetSize () > header.GetSerializedSize ())
+//        {
+//          buffer->PeekHeader (header);
+//        }
+//      else
+//        {
+//          break;
+//        }
+//    }
+//}
+//
+//void
+//RoutingProtocol::HandlePeerClose (Ptr<Socket> socket)
+//{
+//  NS_LOG_FUNCTION (this << socket);
+//}
+//
+//void
+//RoutingProtocol::HandlePeerError (Ptr<Socket> socket)
+//{
+//  NS_LOG_FUNCTION (this << socket);
+//}
+//
+//void
+//RoutingProtocol::HandleAccept (Ptr<Socket> s, const Address& from)
+//{
+//  NS_LOG_FUNCTION (this << s << from);
+//  s->SetRecvCallback (MakeCallback (&RoutingProtocol::HandleRead, this));
+//  m_socketList.push_back (s);
+//}
+
+
+
+//
+//void
+//SendPacket2 (Ptr<Packet> packet,const MessageList &containedMessages)
+//{
+//	// Add a header
+//	  olsr::PacketHeader header;
+//	  header.SetPacketLength (header.GetSerializedSize () + packet->GetSize ());
+//	  header.SetPacketSequenceNumber (GetPacketSequenceNumber ());
+//	  packet->AddHeader (header);
+//
+//	  // Trace it
+//	  m_txPacketTrace (header, containedMessages);
+//
+//	  // Send it
+//	  for (std::map<Ptr<Socket>, Ipv4InterfaceAddress>::const_iterator i =
+//	         m_sendSockets.begin (); i != m_sendSockets.end (); i++)
+//	    {
+//	      Ptr<Packet> pkt = packet->Copy ();
+//	      Ipv4Address bcast = i->second.GetLocal ().GetSubnetDirectedBroadcast (i->second.GetMask ());
+//	      i->first->SendTo (pkt, 0, InetSocketAddress (bcast, OLSR_PORT_NUMBER));
+//	    }
+//}
+
+//void
+//RoutingProtocol::AddRoutingProtocol (Ptr<olsr::RoutingProtocol> routingProtocol, int16_t priority)
+//{
+//  NS_LOG_FUNCTION (this << routingProtocol->GetInstanceTypeId () << priority);
+//  m_routingProtocols.push_back (std::make_pair (priority, routingProtocol));
+//  m_routingProtocols.sort ( Compare );
+//  if (m_ipv4 != 0)
+//    {
+//      routingProtocol->SetIpv4 (m_ipv4);
+//    }
+//}
+
+
+//bool
+//RoutingProtocol::Compare (const OlsrRoutingProtocolEntry& a, const OlsrRoutingProtocolEntry& b)
+//{
+////  NS_LOG_FUNCTION (a.first << a.second << b.first << b.second);
+//  return a.first > b.first;
+//}
+//
+//Ptr<olsr::RoutingProtocol>
+//RoutingProtocol::GetRoutingProtocol (uint32_t index, int16_t& priority) const
+//{
+//  NS_LOG_FUNCTION (this << index << priority);
+//  if (index > m_routingProtocols.size ())
+//    {
+//      NS_FATAL_ERROR ("RoutingProtocol::GetRoutingProtocol():  index " << index << " out of range");
+//    }
+//  uint32_t i = 0;
+//  for (OlsrRoutingProtocolList::const_iterator rprotoIter = m_routingProtocols.begin ();
+//       rprotoIter != m_routingProtocols.end (); rprotoIter++, i++)
+//    {
+//      if (i == index)
+//        {
+//          priority = (*rprotoIter).first;
+//          return (*rprotoIter).second;
+//        }
+//    }
+//  return 0;
+//}
+
+//
 
 void
 RoutingProtocol::LinkSensing (const olsr::MessageHeader &msg,
@@ -2640,6 +3494,7 @@ RoutingProtocol::TcTimerExpire  (void)
     {
       NS_LOG_DEBUG ("Not sending any TC, no one selected me as MPR.");
     }
+//  threshold_flag = 1;
   m_tcTimer.Schedule (m_tcInterval);
 }
 
@@ -3060,6 +3915,19 @@ bool RoutingProtocol::RouteInput  (Ptr<const Packet> p,
 void
 RoutingProtocol::NotifyInterfaceUp (uint32_t i)
 {
+/*
+	NS_LOG_FUNCTION (this << m_ipv4->GetAddress (i, 0).GetLocal ());
+
+	 Ptr<Ipv4L3Protocol> l3 = m_ipv4->GetObject<Ipv4L3Protocol> ();
+	 Ipv4InterfaceAddress iface = l3->GetAddress (i, 0);
+
+	 uint32_t x = 1;
+*/
+
+	 //経路エントリーを作成する
+	//AddEntry(	/*dst=*/ iface.GetBroadcast (), /*next hop=*/ iface.GetBroadcast (), /*iface=*/ i, /*distance*/ x);
+
+
 }
 void
 RoutingProtocol::NotifyInterfaceDown (uint32_t i)
@@ -3229,7 +4097,9 @@ RoutingProtocol::GetRoutingTableAssociation  (void) const
   return m_hnaRoutingTable;
 }
 
+
+
+
 } // namespace olsr
 } // namespace ns3
-
 

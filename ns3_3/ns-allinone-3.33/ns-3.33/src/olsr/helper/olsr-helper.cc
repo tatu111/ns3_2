@@ -35,6 +35,11 @@ OlsrHelper::OlsrHelper (const OlsrHelper &o)
   : m_agentFactory (o.m_agentFactory)
 {
   m_interfaceExclusions = o.m_interfaceExclusions;
+  std::list<std::pair<const OlsrHelper *, int16_t> >::const_iterator i;
+  for (i = o.m_list.begin (); i != o.m_list.end (); ++i)
+   {
+     m_list.push_back (std::make_pair (const_cast<const OlsrHelper *> (i->first->Copy ()), i->second));
+   }
 }
 
 OlsrHelper*
@@ -120,8 +125,124 @@ OlsrHelper::AssignStreams (NodeContainer c, int64_t stream)
             }
         }
     }
+
+
   return (currentStream - stream);
 
 }
+
+//自分で作成
+void
+OlsrHelper::PrintResourceAll (Time printInterval, Ptr<OutputStreamWrapper> stream)
+{
+  for (uint32_t i = 0; i < NodeList::GetNNodes (); i++)
+    {
+      Ptr<Node> node = NodeList::GetNode (i);
+      Simulator::Schedule (printInterval, &OlsrHelper::PrintResource, printInterval, node, stream);
+    }
+}
+
+//自分で作成した
+void
+OlsrHelper::PrintResource (Time printInterval, Ptr<Node> node, Ptr<OutputStreamWrapper> stream)
+{
+  Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+  Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();
+  Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (ipv4_proto);
+
+  if (list)
+          {
+            int16_t priority;
+            Ptr<Ipv4RoutingProtocol> listProto;
+            Ptr<olsr::RoutingProtocol> listOlsr;
+            for (uint32_t i = 0; i < list->GetNRoutingProtocols (); i++)
+              {
+                listProto = list->GetRoutingProtocol (i, priority);
+                listOlsr = DynamicCast<olsr::RoutingProtocol> (listProto);
+                NS_ASSERT (listOlsr);
+                if (listOlsr)
+                  {
+                	listOlsr->Resource_Print(stream, node);
+                	break;
+                  }
+              }
+          }
+
+}
+
+
+
+//std::map<Ptr<Node>, Address>
+//OlsrHelper::GetThreshold (Ptr<Node> node){
+//	Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+//	Ptr<Ipv4RoutingProtocol> proto = ipv4->GetRoutingProtocol ();
+//	Ptr<olsr::RoutingProtocol> olsr = DynamicCast<olsr::RoutingProtocol> (proto);
+//
+//	return olsr->GetResourceThreshold();
+//}
+
+
+
+//uint32_t
+//OlsrHelper::ResourceAll ()
+//{
+//  for (uint32_t i = 0; i < NodeList::GetNNodes (); i++)
+//    {
+//      Ptr<Node> node = NodeList::GetNode (i);
+//      Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+//      Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();
+//      Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (ipv4_proto);
+//
+//      if (list)
+//       {
+//           int16_t priority;
+//           Ptr<Ipv4RoutingProtocol> listProto;
+//           Ptr<olsr::RoutingProtocol> listOlsr;
+//           for (uint32_t j = 0; j < list->GetNRoutingProtocols (); j++)
+//             {
+//        	   listProto = list->GetRoutingProtocol (j, priority);
+//        	   listOlsr = DynamicCast<olsr::RoutingProtocol> (listProto);
+//        	   NS_ASSERT (listOlsr);
+//        	   if (listOlsr)
+//        	   {
+//        		   return listOlsr->Resource_sum();
+//
+//               }
+//             }
+//       }
+//    }
+//  return 0;
+//}
+
+//自分で作成した
+//void
+//OlsrHelper::Resource (Ptr<Node> node)
+//{
+//  Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+//  Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();
+//  Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (ipv4_proto);
+//
+//  if (list)
+//          {
+//            int16_t priority;
+//            Ptr<Ipv4RoutingProtocol> listProto;
+//            Ptr<olsr::RoutingProtocol> listOlsr;
+//            for (uint32_t i = 0; i < list->GetNRoutingProtocols (); i++)
+//              {
+//                listProto = list->GetRoutingProtocol (i, priority);
+//                listOlsr = DynamicCast<olsr::RoutingProtocol> (listProto);
+//                NS_ASSERT (listOlsr);
+//                if (listOlsr)
+//                  {
+//                	listOlsr->Resource_sum(node);
+//                	break;
+//                  }
+//              }
+//          }
+//}
+
+
+
+//
 
 } // namespace ns3
