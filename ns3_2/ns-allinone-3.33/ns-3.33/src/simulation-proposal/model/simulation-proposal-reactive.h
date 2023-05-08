@@ -36,7 +36,7 @@
 #include <unordered_map>
 
 #include "ns3/olsr-routing-protocol.h"
-#include "ns3/seq-ts-size-header2.h"
+#include "ns3/simulation-header.h"
 
 //class RoutingProtocol;
 
@@ -234,6 +234,13 @@ private:
 
 
   //Time task_interval;   //タスクの要求の発生インターバル
+//  Time            m_checkinterval = Seconds(0.001);    //checkを行うまでのinterval
+
+  uint32_t        core_flag = 0;      //自ノードがcoreノードである場合1を格納
+
+//  EventId         m_CorecheckEvent;   //Event id of checking core_flag
+
+  uint32_t			flooding_flag = 0;   //自ノードがfloodingメッセージを受け取った場合1を格納
 
 
   /// Traced Callback: transmitted packets.
@@ -245,6 +252,7 @@ private:
   /// Callback for tracing the packet Tx events, includes source, destination, the packet sent, and header
   TracedCallback<Ptr<const Packet>, const Address &, const Address &, const SeqTsSizeHeader &> m_txTraceWithSeqTsSize;
 
+  TracedCallback<Ptr<const Packet>, const Address &, const Address &, const SimulationHeader &> m_txTraceWithSeqTsSize2;
 private:
   /**
    * \brief Schedule the next packet transmission
@@ -258,6 +266,17 @@ private:
    * \brief Schedule the next Off period start
    */
   void ScheduleStopEvent ();
+
+//  //coreノードがあるかのcheckイベント
+//  void ScheduleCorecheckEvent ();
+
+  //coreノードがあるかのcheck and 引き続きの操作
+  void CoreFlooding ();
+
+
+
+
+
   /**
    * \brief Handle a Connection Succeed event
    * \param socket the connected socket
@@ -271,23 +290,23 @@ private:
   //パケット送信に関するもの(ここまで)
 
   //パケット受信に関するもの(ここから)
-      void HandleRead (Ptr<Socket> socket);
+  void HandleRead (Ptr<Socket> socket);
         /**
          * \brief Handle an incoming connection
          * \param socket the incoming connection socket
          * \param from the address the connection is from
          */
-        void HandleAccept (Ptr<Socket> socket, const Address& from);
+  void HandleAccept (Ptr<Socket> socket, const Address& from);
         /**
          * \brief Handle an connection close
          * \param socket the connected socket
          */
-        void HandlePeerClose (Ptr<Socket> socket);
+  void HandlePeerClose (Ptr<Socket> socket);
         /**
          * \brief Handle an connection error
          * \param socket the connected socket
          */
-        void HandlePeerError (Ptr<Socket> socket);
+  void HandlePeerError (Ptr<Socket> socket);
 
         /**
          * \brief Packet received: assemble byte stream to extract SeqTsSizeHeader
@@ -298,12 +317,12 @@ private:
          * The method assembles a received byte stream and extracts SeqTsSizeHeader
          * instances from the stream to export in a trace source.
          */
-        void PacketReceived (const Ptr<Packet> &p, const Address &from, const Address &localAddress);
+  void PacketReceived (const Ptr<Packet> &p, const Address &from, const Address &localAddress);
 
         /**
          * \brief Hashing for the Address class
          */
-        struct AddressHash
+  struct AddressHash
         {
           /**
            * \brief operator ()
@@ -323,7 +342,7 @@ private:
           }
         };
 
-        std::unordered_map<Address, Ptr<Packet>, AddressHash> m_buffer; //!< Buffer for received packets
+   std::unordered_map<Address, Ptr<Packet>, AddressHash> m_buffer; //!< Buffer for received packets
 
     //    // In the case of TCP, each socket accept returns a new socket, so the
     //    // listening socket is stored separately from the accepted sockets
@@ -332,13 +351,13 @@ private:
     //  TypeId          m_tid;          //!< Protocol TypeId
 
 
-        /// Traced Callback: received packets, source address.
-        TracedCallback<Ptr<const Packet>, const Address &> m_rxTrace;
-        /// Callback for tracing the packet Rx events, includes source and destination addresses
-        TracedCallback<Ptr<const Packet>, const Address &, const Address &> m_rxTraceWithAddresses;
-        /// Callbacks for tracing the packet Rx events, includes source, destination addresses, and headers
-        TracedCallback<Ptr<const Packet>, const Address &, const Address &, const SeqTsSizeHeader&> m_rxTraceWithSeqTsSize;
-        //パケット受信に関するもの(ここまで)
+   /// Traced Callback: received packets, source address.
+   TracedCallback<Ptr<const Packet>, const Address &> m_rxTrace;
+   /// Callback for tracing the packet Rx events, includes source and destination addresses
+   TracedCallback<Ptr<const Packet>, const Address &, const Address &> m_rxTraceWithAddresses;
+   /// Callbacks for tracing the packet Rx events, includes source, destination addresses, and headers
+   TracedCallback<Ptr<const Packet>, const Address &, const Address &, const SeqTsSizeHeader&> m_rxTraceWithSeqTsSize;
+   //パケット受信に関するもの(ここまで)
 
 
 };

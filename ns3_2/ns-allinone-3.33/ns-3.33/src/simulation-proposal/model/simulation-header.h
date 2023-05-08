@@ -22,6 +22,7 @@
 #define SIMULATION_HEADER_H
 
 #include <ns3/seq-ts-header.h>
+#include "ns3/ipv4-address.h"
 
 namespace ns3 {
 /**
@@ -67,7 +68,7 @@ public:
    */
   void SetSize (uint64_t size);
 
-  void SetResource (uint32_t resource_sum);
+//  void SetResource (uint32_t resource_sum);
 
   void SetMessageType (MessageType messageType)
   {
@@ -97,6 +98,18 @@ public:
   }
 
 
+  void SetDestinationAddress (Ipv4Address destinationAddress)
+  {
+	  m_destinationAddress = destinationAddress;
+  }
+
+
+  Ipv4Address GetDestinationAddress () const
+  {
+	  return m_destinationAddress;
+  }
+
+
 
   /**
    * \brief Get the size information that the header is carrying
@@ -104,7 +117,6 @@ public:
    */
   uint64_t GetSize (void) const;
 
-  uint32_t GetResource (void) const;
 
 
 
@@ -124,42 +136,53 @@ public:
 	uint32_t GetSerializedSize (void) const;
 
 	uint32_t Deserialize (Buffer::Iterator start);
+
+
+	void SetResource (uint32_t resource_sum);
+
+
+	uint32_t GetResource (void) const;
   };
 
   struct Core
   {
+
 	void Serialize(Buffer::Iterator start) const;
 
 	uint32_t GetSerializedSize (void) const;
 
 	uint32_t Deserialize (Buffer::Iterator start);
+
+
   };
 
   struct Flooding
   {
-	void Serialize(Buffer::Iterator start) const;
 
-	uint32_t GetSerializedSize (void) const;
+	  void Serialize(Buffer::Iterator start) const;
 
-	uint32_t Deserialize (Buffer::Iterator start);
+	  uint32_t GetSerializedSize (void) const;
+
+	  uint32_t Deserialize (Buffer::Iterator start);
+
   };
 
   struct FloodingReturn
   {
-	void Serialize(Buffer::Iterator start) const;
+	  void Serialize(Buffer::Iterator start) const;
 
-	uint32_t GetSerializedSize (void) const;
+	  uint32_t GetSerializedSize (void) const;
 
-	uint32_t Deserialize (Buffer::Iterator start);
+	  uint32_t Deserialize (Buffer::Iterator start);
   };
 
   struct Notice
   {
-	void Serialize(Buffer::Iterator start) const;
+	  void Serialize(Buffer::Iterator start) const;
 
-	uint32_t GetSerializedSize (void) const;
+	  uint32_t GetSerializedSize (void) const;
 
-	uint32_t Deserialize (Buffer::Iterator start);
+	  uint32_t Deserialize (Buffer::Iterator start);
   };
 
 
@@ -195,7 +218,7 @@ public:
      * Set the message type to HELLO and return the message content.
      * \returns The HELLO message.
      */
-    Core& GetCore ()
+    void GetCore ()
     {
       if (m_messageType == 0)
         {
@@ -205,14 +228,14 @@ public:
         {
           NS_ASSERT (m_messageType == CORE_MESSAGE);
         }
-      return m_message.core;
+//      return m_message.core;
     }
 
     /**
      * Set the message type to TC and return the message content.
      * \returns The TC message.
      */
-    Flooding& GetFlooding ()
+    void GetFlooding ()
     {
       if (m_messageType == 0)
         {
@@ -222,7 +245,7 @@ public:
         {
           NS_ASSERT (m_messageType == FLOODING_MESSAGE);
         }
-      return m_message.flooding;
+//      return m_message.flooding;
     }
 
     /**
@@ -270,20 +293,20 @@ public:
      * Get the HELLO message.
      * \returns The HELLO message.
      */
-    const Core& GetCore () const
+    const void GetCore () const
     {
       NS_ASSERT (m_messageType == CORE_MESSAGE);
-      return m_message.core;
+//      return m_message.core;
     }
 
     /**
      * Get the TC message.
      * \returns The TC message.
      */
-    const Flooding& GetFlooding () const
+    const void GetFlooding () const
     {
       NS_ASSERT (m_messageType == FLOODING_MESSAGE);
-      return m_message.flooding;
+//      return m_message.flooding;
     }
 
     /**
@@ -313,6 +336,7 @@ private:
   uint32_t m_resource;
   MessageType m_messageType;
   uint8_t m_hopCount;
+  Ipv4Address m_destinationAddress;
 };
 
 } // namespace ns3

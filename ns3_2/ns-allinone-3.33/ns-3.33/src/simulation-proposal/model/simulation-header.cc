@@ -58,11 +58,6 @@ SimulationHeader::SetSize (uint64_t size)
   m_size = size;
 }
 
-void
-SimulationHeader::SetResource (uint32_t resource_sum)
-{
-  m_resource = resource_sum;
-}
 
 uint64_t
 SimulationHeader::GetSize (void) const
@@ -70,11 +65,6 @@ SimulationHeader::GetSize (void) const
   return m_size;
 }
 
-uint32_t
-SimulationHeader::GetResource (void) const
-{
-  return m_resource;
-}
 
 void
 SimulationHeader::Print (std::ostream &os) const
@@ -193,7 +183,7 @@ SimulationHeader::Proactive::Serialize(Buffer::Iterator start) const
 uint32_t
 SimulationHeader::Proactive::GetSerializedSize (void) const
 {
-	uint32_t size = 4;
+	uint32_t size = 8;
 	return size;
 }
 
@@ -207,11 +197,22 @@ SimulationHeader::Proactive::Deserialize(Buffer::Iterator start)
 	return GetSerializedSize ();
 }
 
+void
+SimulationHeader::Proactive::SetResource (uint32_t resource_sum)
+{
+	m_proactive_resource = resource_sum;
+}
+
+uint32_t
+SimulationHeader::Proactive::GetResource (void) const
+{
+  return m_proactive_resource;
+}
 
 uint32_t
 SimulationHeader::Core::GetSerializedSize (void) const
 {
-	uint32_t size = 16;
+	uint32_t size = 4;
 	return size;
 }
 
@@ -223,7 +224,6 @@ SimulationHeader::Core::Serialize(Buffer::Iterator start) const
 
 }
 
-
 uint32_t
 SimulationHeader::Core::Deserialize(Buffer::Iterator start)
 {
@@ -233,10 +233,13 @@ SimulationHeader::Core::Deserialize(Buffer::Iterator start)
 	return GetSerializedSize ();
 }
 
+
+
+
 uint32_t
 SimulationHeader::Flooding::GetSerializedSize (void) const
 {
-	uint32_t size = 16;
+	uint32_t size = 0;
 	return size;
 }
 

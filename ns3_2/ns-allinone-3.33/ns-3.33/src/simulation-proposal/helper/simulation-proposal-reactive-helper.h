@@ -55,7 +55,7 @@ public:
    * \param address the address of the remote node to send traffic
    *        to.
    */
-  SimulationProposalReactiveHelper (std::string protocol, Address address);
+  SimulationProposalReactiveHelper (std::string protocol);
 
   /**
    * Helper function used to set the underlying application attributes.
