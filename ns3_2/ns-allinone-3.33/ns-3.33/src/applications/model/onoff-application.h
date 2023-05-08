@@ -33,7 +33,7 @@
 #include "ns3/traced-callback.h"
 #include "ns3/seq-ts-size-header.h"
 
-#include "ns3/seq-ts-size-header2.h"
+#include "ns3/simulation-header.h"
 
 namespace ns3 {
 

@@ -609,7 +609,9 @@ void SimulationProposal::SendPacket ()
       SimulationHeader header;
       header.SetSeq (m_seq++);
       header.SetSize (m_pktSize);
-      header.SetResource(m_resource_sum);
+      SimulationHeader::Proactive &proactive = header.GetProactive();
+
+      proactive.SetResource(m_resource_sum);
       NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
       packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
       // Trace before adding header, for consistency with PacketSink
@@ -751,11 +753,17 @@ SimulationProposal::PacketReceived (const Ptr<Packet> &p, const Address &from,
 
       complete->RemoveHeader (header);
 
-      sink_core_candidate.insert(std::make_pair(senderIface, header.GetResource()));
+      if(header.GetMessageType() == SimulationHeader::PROACTIVE_MESSAGE)
+      {
+    	  SimulationHeader::Proactive &proactive = header.GetProactive();
 
-      std::cout<<header.GetResource()<<std::endl;
 
-      m_rxTraceWithSeqTsSize2 (complete, from, localAddress, header);
+    	  sink_core_candidate.insert(std::make_pair(senderIface, proactive.GetResource()));
+
+    	  std::cout<<proactive.GetResource()<<std::endl;
+
+    	  m_rxTraceWithSeqTsSize2 (complete, from, localAddress, header);
+      }
 
       if (buffer->GetSize () > header.GetSerializedSize ())
         {

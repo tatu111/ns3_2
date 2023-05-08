@@ -50,6 +50,8 @@
 #include "ns3/ipv4-list-routing.h"
 #include "simulation-proposal.h"
 #include "simulation-proposal-reactive.h"
+#include "ns3/simulation-header.h"
+#include "ns3/seq-ts-size-header.h"
 //
 
 namespace ns3 {
@@ -61,7 +63,7 @@ NS_OBJECT_ENSURE_REGISTERED (SimulationProposalReactive);
 TypeId
 SimulationProposalReactive::GetTypeId (void)
 {
-  static TypeId tid = TypeId ("ns3::SimulationProposal2")
+  static TypeId tid = TypeId ("ns3::SimulationProposalReactive")
     .SetParent<Application> ()
 	.SetParent<olsr::RoutingProtocol> ()
     .SetGroupName("Applications")
@@ -163,7 +165,7 @@ Ptr<Socket>
 SimulationProposalReactive::GetSocket (void) const
 {
   NS_LOG_FUNCTION (this);
-  return m_socket_local;
+  return m_socket;
 }
 
 int64_t
@@ -216,6 +218,7 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
 
 
 
+
   Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();
   Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (ipv4_proto);
   if (list)
@@ -228,80 +231,62 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
 		  listProto = list->GetRoutingProtocol (i, priority);
          protocol = DynamicCast<olsr::RoutingProtocol> (listProto);
          //NS_ASSERT (listOlsr);
+
          if (protocol)
            {
-
-
         	 std::cout<<"ok"<<std::endl;
-        	 if(protocol->GetResourceThreshold().size()==0)
-        	 {
-        		 std::cout<<"NULL"<<std::endl;
-             }
-
-
-
-//        	 std::random_device rnd;
-//
-//        	 int RANDOM_MAX = 65535;
-//        	 int RANDOM_MIN = 49152;
-//
-//        	 int port = (rnd()%(RANDOM_MAX - RANDOM_MIN + 1)) + RANDOM_MIN;
-//
-//
-//        	 m_peer = InetSocketAddress ("10.1.1.1", port);
 
 
         	 //listen
         	 // Create the socket if not already
         	 if(node->GetId()==0){
-
-
         		 if (!m_socket)
-                 {
+        		 {
         			 m_socket = Socket::CreateSocket (GetNode (), m_tid);
-//                if (m_socket->Bind (m_local) == -1)
-//                   {
-//        			 	NS_FATAL_ERROR ("Failed to bind socket");
-//                   }
 
                    m_socket->Listen ();
 
 
-              	 //自分で作成
-               SimulationProposal simulation;
-               sink_core_candidate_reactive = simulation.GetSinkCoreCandidate();
-               uint32_t max_core_candidate = 0;
-
-               for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
-                  i != sink_core_candidate_reactive.end();i++)
-                 {
-                    if(max_core_candidate < i->second)
-                    {
-                    	max_core_candidate = i->second;
-                    }
-                 }
-
-               for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
-                  i != sink_core_candidate_reactive.end();i++)
-                 {
-            	   	   if((max_core_candidate = i->second))
-            	   	   {
-            	   		  Ptr<Packet> packet;
-            	   		  SeqTsSizeHeader header;
-            	   		  header.SetSeq (m_seq++);
-            	   		  header.SetSize (m_pktSize);
-            	   		  NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
-            	   		  packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
-            	   		  // Trace before adding header, for consistency with PacketSink
-            	   		  packet->AddHeader (header);
-            	   		  m_socket->SendTo(packet, 0, i->first);
-                       }
-                 }
+//              	 //自分で作成
+//               SimulationProposal simulation;
+//               sink_core_candidate_reactive = simulation.GetSinkCoreCandidate();
+//               uint32_t max_core_candidate = 0;
+//
+//               for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
+//                  i != sink_core_candidate_reactive.end();i++)
+//                 {
+//                    if(max_core_candidate < i->second)
+//                    {
+//                    	max_core_candidate = i->second;
+//                    }
+//                 }
+//
+//               for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
+//                  i != sink_core_candidate_reactive.end();i++)
+//                 {
+//            	   	   if((max_core_candidate = i->second))
+//            	   	   {
+//            	   		  Ptr<Packet> packet;
+//            	   		  SimulationHeader header;
+//            	   		  header.SetSeq (m_seq++);
+//            	   		  header.SetSize (m_pktSize);
+//            	   		  SimulationHeader::Core &core = header.GetCore();
+//
+//            	   		  core.SetDestinationAddress(i->first);
+//
+//            	   		  NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
+//            	   		  packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
+//            	   		  // Trace before adding header, for consistency with PacketSink
+//            	   		  packet->AddHeader (header);
+//
+//            	   		  m_socket->Connect (i->first);
+////            	   		  m_peer = InetSocketAddress (i->first, 49290);
+////            	   		  m_socket->SendTo(packet, 0, i->first);
+//
+//                       }
+//                 }
 
               	   //
-
-
-
 
                    if (addressUtils::IsMulticast (m_local))
                       {
@@ -318,6 +303,8 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
                       }
                  }
 
+
+
         		 m_socket->SetRecvCallback (MakeCallback (&SimulationProposalReactive::HandleRead, this));
                m_socket->SetAcceptCallback (
                MakeNullCallback<bool, Ptr<Socket>, const Address &> (),
@@ -326,37 +313,28 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
                MakeCallback (&SimulationProposalReactive::HandlePeerClose, this),
                MakeCallback (&SimulationProposalReactive::HandlePeerError, this));
 
+               ScheduleStartEvent ();
+
         	 }
         	 else
         	 {
-        		 if(protocol->GetResourceThreshold().size()!=0)
-        			 {
-        				 std::cout<<node->GetId()<<std::endl;
-                    	 std::map<Ptr<Node>, Address> threshold = protocol->GetResourceThreshold();
-                   	 m_local = threshold[node];
-                      //send
-                   	 // Create the socket if not already
+        		 if(!m_socket)
+        		 {
+        			 m_socket = Socket::CreateSocket (node, m_tid);
 
-                   	 if(!m_socket_local){
-                   		m_socket_local = Socket::CreateSocket (node, m_tid);
-                   	 }
-                		m_socket_local->SetAllowBroadcast (true);
-                		m_socket_local->SetIpTtl (2);
-                		m_socket_local->SetRecvPktInfo (true);
+        			 m_socket->Listen ();
+        		 }
 
-                   		Ptr<Packet> packet;
-                   		SeqTsSizeHeader header;
-                   		header.SetSeq (m_seq++);
-                   		header.SetSize (m_pktSize);
-                   		NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
-                   		packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
-                   		// Trace before adding header, for consistency with PacketSink
-                   		packet->AddHeader (header);
+        		 m_socket->SetRecvCallback (MakeCallback (&SimulationProposalReactive::HandleRead, this));
+        		 m_socket->SetAcceptCallback (
+        				 MakeNullCallback<bool, Ptr<Socket>, const Address &> (),
+						 MakeCallback (&SimulationProposalReactive::HandleAccept, this));
+        		 m_socket->SetConnectCallback (
+        				 MakeCallback (&SimulationProposalReactive::ConnectionSucceeded, this),
+						 MakeCallback (&SimulationProposalReactive::ConnectionFailed, this));
 
-                   		//作成の必要あり
-//                   		Ipv4Address bcast = m_local.GetLocal ().GetSubnetDirectedBroadcast (m_local.GetMask ());
-//                   		m_socket_local->SendTo (packet, 0, InetSocketAddress (bcast, 8001));
-                   	 }
+
+           }
 
 
 
@@ -410,7 +388,7 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
 //
 //        			 }
 //        		 }
-        	 }
+
            }
 	  }
   }
@@ -418,11 +396,11 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
 
 
   //タスクの要求の発生
-  std::random_device seed_gen;
-  std::default_random_engine engine(seed_gen());
-
-  std::exponential_distribution<> dist(1.0);
-
+//  std::random_device seed_gen;
+//  std::default_random_engine engine(seed_gen());
+//
+//  std::exponential_distribution<> dist(1.0);
+//
 //  for (int n = 0; n < 1000; n++) {
 //      // 指数分布で乱数を生成する
 //     Time task_interval = Seconds(dist(engine));
@@ -491,8 +469,11 @@ void SimulationProposalReactive::StartSending ()
 {
   NS_LOG_FUNCTION (this);
   m_lastStartTime = Simulator::Now ();
-  ScheduleNextTx ();  // Schedule the send packet event
   ScheduleStopEvent ();
+  ScheduleNextTx ();  // Schedule the send packet event
+
+//  SendPacket ();
+//  ScheduleStopEvent ();
 }
 
 void SimulationProposalReactive::StopSending ()
@@ -510,14 +491,27 @@ void SimulationProposalReactive::ScheduleNextTx ()
 
   if (m_maxBytes == 0 || m_totBytes < m_maxBytes)
     {
-      NS_ABORT_MSG_IF (m_residualBits > m_pktSize * 8, "Calculation to compute next send time will overflow");
-      uint32_t bits = m_pktSize * 8 - m_residualBits;
-      NS_LOG_LOGIC ("bits = " << bits);
-      Time nextTime (Seconds (bits /
-                              static_cast<double>(m_cbrRate.GetBitRate ()))); // Time till next packet
-      NS_LOG_LOGIC ("nextTime = " << nextTime.As (Time::S));
-      m_sendEvent = Simulator::Schedule (nextTime,
-                                         &SimulationProposalReactive::SendPacket, this);
+//      NS_ABORT_MSG_IF (m_residualBits > m_pktSize * 8, "Calculation to compute next send time will overflow");
+//      uint32_t bits = m_pktSize * 8 - m_residualBits;
+//      NS_LOG_LOGIC ("bits = " << bits);
+//      Time nextTime (Seconds (bits /
+//                              static_cast<double>(m_cbrRate.GetBitRate ()))); // Time till next packet
+//      NS_LOG_LOGIC ("nextTime = " << nextTime.As (Time::S));
+//      m_sendEvent = Simulator::Schedule (nextTime,
+//                                         &SimulationProposalReactive::SendPacket, this);
+	  int send_count = 0;
+	  if(send_count<1){
+	  		  m_residualBits = 0;
+	  		  NS_ABORT_MSG_IF (m_residualBits > m_pktSize * 8, "Calculation to compute next send time will overflow");
+	  		  uint32_t bits = m_pktSize * 8 - m_residualBits;
+	  		  NS_LOG_LOGIC ("bits = " << bits);
+	  		  Time nextTime (Seconds (bits /
+	  								  static_cast<double>(m_cbrRate.GetBitRate ()))); // Time till next packet
+	  		  NS_LOG_LOGIC ("nextTime = " << nextTime.As (Time::S));
+	  		  m_sendEvent = Simulator::Schedule (nextTime,
+	  											 &SimulationProposalReactive::SendPacket, this);
+	  		  send_count += 1;
+	  	  }
     }
   else
     { // All done, cancel any pending events
@@ -533,6 +527,7 @@ void SimulationProposalReactive::ScheduleStartEvent ()
   NS_LOG_LOGIC ("start at " << offInterval.As (Time::S));
   m_startStopEvent = Simulator::Schedule (offInterval, &SimulationProposalReactive::StartSending, this);
 }
+
 
 void SimulationProposalReactive::ScheduleStopEvent ()
 {  // Schedules the event to stop sending data (switch to "Off" state)
@@ -557,60 +552,108 @@ void SimulationProposalReactive::SendPacket ()
     }
   else if (m_enableSeqTsSizeHeader)
     {
-      Address from, to;
-      m_socket_local->GetSockName (from);
-      m_socket_local->GetPeerName (to);
-      SeqTsSizeHeader header;
-      header.SetSeq (m_seq++);
-      header.SetSize (m_pktSize);
-      NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
-      packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
-      // Trace before adding header, for consistency with PacketSink
-      m_txTraceWithSeqTsSize (packet, from, to, header);
-      packet->AddHeader (header);
+//      Address from, to;
+//      m_socket_local->GetSockName (from);
+//      m_socket_local->GetPeerName (to);
+//      SeqTsSizeHeader header;
+//      header.SetSeq (m_seq++);
+//      header.SetSize (m_pktSize);
+//      NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
+//      packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
+//      // Trace before adding header, for consistency with PacketSink
+//      m_txTraceWithSeqTsSize (packet, from, to, header);
+//      packet->AddHeader (header);
+	  //自分で作成
+	  SimulationProposal simulation;
+	  sink_core_candidate_reactive = simulation.GetSinkCoreCandidate();
+	  uint32_t max_core_candidate = 0;
+
+	  for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
+			  i != sink_core_candidate_reactive.end();i++)
+	  {
+		  if(max_core_candidate < i->second)
+		  {
+			  max_core_candidate = i->second;
+		  }
+	  }
+
+	  for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
+			  i != sink_core_candidate_reactive.end();i++)
+	  {
+		  if((max_core_candidate = i->second))
+		  {
+			  m_socket->Bind(i->first);
+			  Ptr<Packet> packet;
+			  Address from, to;
+			  m_socket->GetSockName (from);
+			  m_socket->GetPeerName (to);
+
+			  SimulationHeader header;
+			  header.SetSeq (m_seq++);
+			  header.SetSize (m_pktSize);
+			  header.GetCore();
+
+			  header.SetDestinationAddress(i->first);
+
+			  NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
+			  packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
+			  // Trace before adding header, for consistency with PacketSink
+			  packet->AddHeader (header);
+			  m_txTraceWithSeqTsSize2 (packet, from, to, header);
+
+			  m_socket->Connect (i->first);
+
+			  m_socket->Send (packet, 0);
+
+			  break;
+
+		  }
+	  }
+
     }
   else
     {
       packet = Create<Packet> (m_pktSize);
     }
 
-  int actual = m_socket_local->Send (packet);
-  if ((unsigned) actual == m_pktSize)
-    {
-      m_txTrace (packet);
-      m_totBytes += m_pktSize;
-      m_unsentPacket = 0;
-      Address localAddress;
-      m_socket_local->GetSockName (localAddress);
-      if (InetSocketAddress::IsMatchingType (m_peer))
-        {
-          NS_LOG_INFO ("At time " << Simulator::Now ().As (Time::S)
-                       << " on-off application sent "
-                       <<  packet->GetSize () << " bytes to "
-                       << InetSocketAddress::ConvertFrom(m_peer).GetIpv4 ()
-                       << " port " << InetSocketAddress::ConvertFrom (m_peer).GetPort ()
-                       << " total Tx " << m_totBytes << " bytes");
-          m_txTraceWithAddresses (packet, localAddress, InetSocketAddress::ConvertFrom (m_peer));
-        }
-      else if (Inet6SocketAddress::IsMatchingType (m_peer))
-        {
-          NS_LOG_INFO ("At time " << Simulator::Now ().As (Time::S)
-                       << " on-off application sent "
-                       <<  packet->GetSize () << " bytes to "
-                       << Inet6SocketAddress::ConvertFrom(m_peer).GetIpv6 ()
-                       << " port " << Inet6SocketAddress::ConvertFrom (m_peer).GetPort ()
-                       << " total Tx " << m_totBytes << " bytes");
-          m_txTraceWithAddresses (packet, localAddress, Inet6SocketAddress::ConvertFrom(m_peer));
-        }
-    }
-  else
-    {
-      NS_LOG_DEBUG ("Unable to send packet; actual " << actual << " size " << m_pktSize << "; caching for later attempt");
-      m_unsentPacket = packet;
-    }
+//  int actual = m_socket->Send (packet);
+//  if ((unsigned) actual == m_pktSize)
+//    {
+//      m_txTrace (packet);
+//      m_totBytes += m_pktSize;
+//      m_unsentPacket = 0;
+//      Address localAddress;
+//      m_socket->GetSockName (localAddress);
+//      if (InetSocketAddress::IsMatchingType (m_peer))
+//        {
+//          NS_LOG_INFO ("At time " << Simulator::Now ().As (Time::S)
+//                       << " on-off application sent "
+//                       <<  packet->GetSize () << " bytes to "
+//                       << InetSocketAddress::ConvertFrom(m_peer).GetIpv4 ()
+//                       << " port " << InetSocketAddress::ConvertFrom (m_peer).GetPort ()
+//                       << " total Tx " << m_totBytes << " bytes");
+//          m_txTraceWithAddresses (packet, localAddress, InetSocketAddress::ConvertFrom (m_peer));
+//        }
+//      else if (Inet6SocketAddress::IsMatchingType (m_peer))
+//        {
+//          NS_LOG_INFO ("At time " << Simulator::Now ().As (Time::S)
+//                       << " on-off application sent "
+//                       <<  packet->GetSize () << " bytes to "
+//                       << Inet6SocketAddress::ConvertFrom(m_peer).GetIpv6 ()
+//                       << " port " << Inet6SocketAddress::ConvertFrom (m_peer).GetPort ()
+//                       << " total Tx " << m_totBytes << " bytes");
+//          m_txTraceWithAddresses (packet, localAddress, Inet6SocketAddress::ConvertFrom(m_peer));
+//        }
+//    }
+//  else
+//    {
+//      NS_LOG_DEBUG ("Unable to send packet; actual " << actual << " size " << m_pktSize << "; caching for later attempt");
+//      m_unsentPacket = packet;
+//    }
   m_residualBits = 0;
   m_lastStartTime = Simulator::Now ();
   ScheduleNextTx ();
+
 }
 
 
@@ -672,8 +715,11 @@ void
 SimulationProposalReactive::PacketReceived (const Ptr<Packet> &p, const Address &from,
                             const Address &localAddress)
 {
-  SeqTsSizeHeader header;
+  SimulationHeader header;
   Ptr<Packet> buffer;
+
+  Ptr<Node> node = GetNode();
+  Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
 
   auto itBuffer = m_buffer.find (from);
   if (itBuffer == m_buffer.end ())
@@ -695,7 +741,45 @@ SimulationProposalReactive::PacketReceived (const Ptr<Packet> &p, const Address 
 
       complete->RemoveHeader (header);
 
-      m_rxTraceWithSeqTsSize (complete, from, localAddress, header);
+      if(header.GetMessageType() == SimulationHeader::CORE_MESSAGE)
+      {
+//    	  SimulationHeader::Core &core = header.GetCore();
+
+    	  if(header.GetDestinationAddress() == ipv4->GetAddress (0, 0).GetLocal ())
+    	  {
+    		  core_flag = 1;
+    	  }
+
+    	  m_socket->Connect (header.GetDestinationAddress());
+//    	  m_socket->SendTo (p, 0, header.GetDestinationAddress());
+      }
+
+      //floodingメッセージを受け取った際のアクション
+      if(header.GetMessageType() == SimulationHeader::FLOODING_MESSAGE)
+      {
+    	  flooding_flag = 1;
+      }
+
+
+//      m_rxTraceWithSeqTsSize2 (complete, from, localAddress, header);
+
+
+      //coreノードであるかの確認
+      if(core_flag == 1)
+      {
+    	  //coreノードの処理をコーディングした関数
+    	  CoreFlooding();
+      }
+
+      //floodingメッセージを受け取ったノードであるかの確認
+//      if(flooding_flag == 1)
+//      {
+//    	  //floodingメッセージを受け取ったノードの処理をコーディングした関数
+//    	  CoreFlooding();
+//      }
+
+
+
 
       if (buffer->GetSize () > header.GetSerializedSize ())
         {
@@ -707,6 +791,45 @@ SimulationProposalReactive::PacketReceived (const Ptr<Packet> &p, const Address 
         }
     }
 }
+
+
+
+
+void SimulationProposalReactive::CoreFlooding ()
+{
+  NS_LOG_FUNCTION (this);
+
+  Ptr<Node> node = GetNode();
+  Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+
+  if(!m_socket_local)
+  {
+	  m_socket_local = Socket::CreateSocket (node, m_tid);
+  }
+  m_socket_local->SetAllowBroadcast (true);
+  m_socket_local->SetIpTtl (2);
+  m_socket_local->SetRecvPktInfo (true);
+
+  Ptr<Packet> packet;
+  SimulationHeader header;
+  header.SetSeq (m_seq++);
+  header.SetSize (m_pktSize);
+  header.GetFlooding();
+
+  NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
+  packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
+  // Trace before adding header, for consistency with PacketSink
+  packet->AddHeader (header);
+
+
+  Ipv4InterfaceAddress iface = ipv4->GetAddress (0, 0);
+  Ipv4Address bcast = iface.GetLocal ().GetSubnetDirectedBroadcast (iface.GetMask ());
+  m_socket_local->SendTo (packet, 0, InetSocketAddress (bcast, 49250));
+
+}
+
+
+
 
 void SimulationProposalReactive::HandlePeerClose (Ptr<Socket> socket)
 {
