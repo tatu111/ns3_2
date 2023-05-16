@@ -181,6 +181,11 @@ public:
   //sinkが把握しているcoreノード候補
   std::map<Ipv4Address, uint32_t> sink_core_candidate;
 
+  void SetSinkCoreCandidate (Ipv4Address address, uint32_t resource)
+  {
+	  sink_core_candidate.insert(std::make_pair(address, resource));
+  }
+
   std::map<Ipv4Address, uint32_t> GetSinkCoreCandidate ()
   {
 	  return sink_core_candidate;

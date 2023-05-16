@@ -252,25 +252,25 @@ void SimulationProposal::StartApplication () // Called at time specified by Star
 					 if (!m_socket)
 					 {
 						 m_socket = Socket::CreateSocket (node, m_tid);
-	                if (m_socket->Bind (m_peer) == -1)
-	                   {
-	        			 	NS_FATAL_ERROR ("Failed to bind socket");
-	                   }
-					   m_socket->Listen ();
+						 if (m_socket->Bind (m_peer) == -1)
+						 {
+							 NS_FATAL_ERROR ("Failed to bind socket");
+						 }
+						 m_socket->Listen ();
 
-					   if (addressUtils::IsMulticast (m_peer))
-						  {
-						   Ptr<UdpSocket> udpSocket = DynamicCast<UdpSocket> (m_socket);
-						   if (udpSocket)
-								{
-							   // equivalent to setsockopt (MCAST_JOIN_GROUP)
-						   udpSocket->MulticastJoinGroup (0, m_peer);
-								}
-						   else
-								{
-							   NS_FATAL_ERROR ("Error: joining multicast on a non-UDP socket");
-								}
-						  }
+						 if (addressUtils::IsMulticast (m_peer))
+						 {
+							 Ptr<UdpSocket> udpSocket = DynamicCast<UdpSocket> (m_socket);
+							 if (udpSocket)
+							 {
+								 // equivalent to setsockopt (MCAST_JOIN_GROUP)
+								 udpSocket->MulticastJoinGroup (0, m_peer);
+							 }
+							 else
+							 {
+								 NS_FATAL_ERROR ("Error: joining multicast on a non-UDP socket");
+							 }
+						 }
 					 }
 
 
@@ -286,9 +286,6 @@ void SimulationProposal::StartApplication () // Called at time specified by Star
 
 //					 protocol->threshold_flag = 0;
 
-
-
-
 					 }
 					 else
 					 {
@@ -296,50 +293,51 @@ void SimulationProposal::StartApplication () // Called at time specified by Star
 						 std::map<Ptr<Node>, Address>::iterator it;
 						 it = threshold.find(node);
 						 m_resource_sum = protocol->m_resource_sum[node->GetId()];
-						 if(it != threshold.end()){
-							 {
-								 std::cout<<node->GetId()<<std::endl;
+						 if(it != threshold.end())
+						 {
+							 std::cout<<node->GetId()<<std::endl;
 							 m_local = threshold[node];
-							  //send
+							 //send
 							 // Create the socket if not already
 							 if (!m_socket_local)
-								 {
+							 {
 								 m_socket_local = Socket::CreateSocket (node, m_tid);
 								 int ret = -1;
 
 								 if (! m_local.IsInvalid())
-									 {
+								 {
 									 NS_ABORT_MSG_IF ((Inet6SocketAddress::IsMatchingType (m_peer) && InetSocketAddress::IsMatchingType (m_local)) ||
-														   (InetSocketAddress::IsMatchingType (m_peer) && Inet6SocketAddress::IsMatchingType (m_local)),
-														   "Incompatible peer and local address IP version");
+											 (InetSocketAddress::IsMatchingType (m_peer) && Inet6SocketAddress::IsMatchingType (m_local)),
+											 "Incompatible peer and local address IP version");
 									 ret = m_socket_local->Bind (m_local);
-									 }
-								 else
-									 {
-									 if (Inet6SocketAddress::IsMatchingType (m_peer))
-											{
-										 ret = m_socket_local->Bind6 ();
-											}
-									 else if (InetSocketAddress::IsMatchingType (m_peer) ||
-												   PacketSocketAddress::IsMatchingType (m_peer))
-											{
-										 ret = m_socket_local->Bind ();
-											}
-									 }
-
-									  if (ret == -1)
-											{
-										  NS_FATAL_ERROR ("Failed to bind socket");
-											}
-
-									  m_socket_local->Connect (m_peer);
-									  m_socket_local->SetAllowBroadcast (true);
-//									  m_socket_local->ShutdownRecv ();
-
-									  m_socket_local->SetConnectCallback (
-										MakeCallback (&SimulationProposal::ConnectionSucceeded, this),
-										MakeCallback (&SimulationProposal::ConnectionFailed, this));
 								 }
+								 else
+								 {
+									 if (Inet6SocketAddress::IsMatchingType (m_peer))
+									 {
+										 ret = m_socket_local->Bind6 ();
+									 }
+									 else if (InetSocketAddress::IsMatchingType (m_peer) ||
+											 PacketSocketAddress::IsMatchingType (m_peer))
+									 {
+										 ret = m_socket_local->Bind ();
+									 }
+								 }
+
+								 if (ret == -1)
+								 {
+									 NS_FATAL_ERROR ("Failed to bind socket");
+								 }
+
+								 m_socket_local->Connect (m_peer);
+								 m_socket_local->SetAllowBroadcast (true);
+//											  m_socket_local->ShutdownRecv ();
+
+								 m_socket_local->SetConnectCallback (
+										 MakeCallback (&SimulationProposal::ConnectionSucceeded, this),
+										 MakeCallback (&SimulationProposal::ConnectionFailed, this));
+
+							 }
 							 m_cbrRateFailSafe = m_cbrRate;
 
 							 // Insure no pending event
@@ -348,14 +346,10 @@ void SimulationProposal::StartApplication () // Called at time specified by Star
 							 // The ConnectionComplete upcall will start timers at that time
 							 //if (!m_connected) return;
 							 ScheduleStartEvent ();
-
-
-
-							 }
 						 }
 					 }
 //        	 }
-           }
+         }
 	  }
   }
 
@@ -520,80 +514,79 @@ void SimulationProposal::SendPacket ()
   NS_ASSERT (m_sendEvent.IsExpired ());
 
 
-
-
   Ptr<Node> node = GetNode();
-    Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+  Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
 
-    Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();
-    Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (ipv4_proto);
-    if (list)
-    {
-  	  int16_t priority;
-  	  Ptr<Ipv4RoutingProtocol> listProto;
+  Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();
+  Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (ipv4_proto);
+  if (list)
+  {
+	  int16_t priority;
+	  Ptr<Ipv4RoutingProtocol> listProto;
   	  Ptr<olsr::RoutingProtocol> protocol;
   	  for (uint32_t i = 0; i < list->GetNRoutingProtocols (); i++)
   	  {
   		  listProto = list->GetRoutingProtocol (i, priority);
-           protocol = DynamicCast<olsr::RoutingProtocol> (listProto);
-           //NS_ASSERT (listOlsr);
-           if (protocol){
-//          	 if (protocol->GetThresholdFlag() == 1)
+  		  protocol = DynamicCast<olsr::RoutingProtocol> (listProto);
+  		  //NS_ASSERT (listOlsr);
+  		  if (protocol)
+  		  {
+//   	       	 if (protocol->GetThresholdFlag() == 1)
 //          	 {
 
-  				 if(protocol->GetResourceThreshold().size()!=0){
+  			  if(protocol->GetResourceThreshold().size()!=0)
+  			  {
+  				  std::map<Ptr<Node>, Address> threshold = protocol->GetResourceThreshold();
+  				  m_local = threshold[node];
+  				  //send
+  				  // Create the socket if not already
+  				  if (!m_socket_local)
+  				  {
+  					  m_socket_local = Socket::CreateSocket (node, m_tid);
+  					  int ret = -1;
+  					  if (! m_local.IsInvalid())
+  					  {
+  						  NS_ABORT_MSG_IF ((Inet6SocketAddress::IsMatchingType (m_peer) && InetSocketAddress::IsMatchingType (m_local)) ||
+  								  (InetSocketAddress::IsMatchingType (m_peer) && Inet6SocketAddress::IsMatchingType (m_local)),
+								  "Incompatible peer and local address IP version");
+  						  ret = m_socket_local->Bind (m_local);
+  					  }
+  					  else
+  					  {
+  						  if (Inet6SocketAddress::IsMatchingType (m_peer))
+  						  {
+  							  ret = m_socket_local->Bind6 ();
+  						  }
+  						  else if (InetSocketAddress::IsMatchingType (m_peer) ||
+  								  PacketSocketAddress::IsMatchingType (m_peer))
+  						  {
+  							  ret = m_socket_local->Bind ();
+  						  }
+  					  }
 
-  						 std::map<Ptr<Node>, Address> threshold = protocol->GetResourceThreshold();
-  						 m_local = threshold[node];
-  						 //send
-  						 // Create the socket if not already
-  						 if (!m_socket_local)
-  						 {
-  							 m_socket_local = Socket::CreateSocket (node, m_tid);
-  							 int ret = -1;
-  							 if (! m_local.IsInvalid())
-  							 {
-  								 NS_ABORT_MSG_IF ((Inet6SocketAddress::IsMatchingType (m_peer) && InetSocketAddress::IsMatchingType (m_local)) ||
-  												   (InetSocketAddress::IsMatchingType (m_peer) && Inet6SocketAddress::IsMatchingType (m_local)),
-  													"Incompatible peer and local address IP version");
-  								 ret = m_socket_local->Bind (m_local);
-  							 }
-  							 else
-  							 {
-  								 if (Inet6SocketAddress::IsMatchingType (m_peer))
-  								 {
-  									 ret = m_socket_local->Bind6 ();
-  								 }
-  								 else if (InetSocketAddress::IsMatchingType (m_peer) ||
-  										    PacketSocketAddress::IsMatchingType (m_peer))
-  								 {
-  									 ret = m_socket_local->Bind ();
-  								 }
-  							 }
+  					  if (ret == -1)
+  					  {
+  						  NS_FATAL_ERROR ("Failed to bind socket");
+  					  }
 
-  							 if (ret == -1)
-  							 {
-  								 NS_FATAL_ERROR ("Failed to bind socket");
-  							 }
-
-  							 m_socket_local->Connect (m_peer);
+  					  m_socket_local->Connect (m_peer);
 
 
 
-  							 m_socket_local->SetConnectCallback (
-  										MakeCallback (&SimulationProposal::ConnectionSucceeded, this),
-  										MakeCallback (&SimulationProposal::ConnectionFailed, this));
-  							 }
-  							 m_cbrRateFailSafe = m_cbrRate;
+  					  m_socket_local->SetConnectCallback (
+  							  MakeCallback (&SimulationProposal::ConnectionSucceeded, this),
+							  MakeCallback (&SimulationProposal::ConnectionFailed, this));
+  				  }
+  				  m_cbrRateFailSafe = m_cbrRate;
 
 
 //  							 protocol->threshold_flag = 0;
 
-  							 }
+  			  }
 //  						 }
-             }
-  	  }
-    }
+  		  }
+  	  	  }
+  }
 
 
   Ptr<Packet> packet;
@@ -733,6 +726,9 @@ SimulationProposal::PacketReceived (const Ptr<Packet> &p, const Address &from,
   SimulationHeader header;
   Ptr<Packet> buffer;
 
+  Ptr<Node> node = GetNode();
+
+
   auto itBuffer = m_buffer.find (from);
   if (itBuffer == m_buffer.end ())
     {
@@ -757,9 +753,15 @@ SimulationProposal::PacketReceived (const Ptr<Packet> &p, const Address &from,
       {
     	  SimulationHeader::Proactive &proactive = header.GetProactive();
 
-
-    	  sink_core_candidate.insert(std::make_pair(senderIface, proactive.GetResource()));
-
+//    	  sink_core_candidate.insert(std::make_pair(senderIface, proactive.GetResource()));
+    	  for(std::map<Ipv4Address, uint32_t>::iterator iter = sink_core_candidate.begin();iter != sink_core_candidate.end();
+    				iter++)
+    	  {
+    		  std::cout << iter->first << std::endl;
+    	  }
+    	  sink_core_candidate[senderIface] = proactive.GetResource();
+    	  std::cout<<senderIface<<std::endl;
+    	  std::cout<<sink_core_candidate.size()<<std::endl;
     	  std::cout<<proactive.GetResource()<<std::endl;
 
     	  m_rxTraceWithSeqTsSize2 (complete, from, localAddress, header);
