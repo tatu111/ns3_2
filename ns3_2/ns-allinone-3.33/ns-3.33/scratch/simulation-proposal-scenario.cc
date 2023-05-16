@@ -229,41 +229,69 @@ int main (int argc, char *argv[])
   ipv4.SetBase ("10.1.1.0", "255.255.255.0");
   Ipv4InterfaceContainer i = ipv4.Assign (devices);
 
+  ApplicationContainer app,app2;
+
+  InetSocketAddress local = InetSocketAddress ("10.1.1.1", 49152);
+  std::string selectedprotocol = "ns3::UdpSocketFactory";
+  SimulationProposalHelper proposal (selectedprotocol, local);
+
+  SimulationProposalReactiveHelper proposal2 (selectedprotocol);
+
+
+
+  proposal.SetConstantRate(DataRate(datarate));
+  proposal.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=3]"));
+  proposal.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
+
+  proposal2.SetConstantRate(DataRate(datarate));
+  proposal2.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=4]"));
+  proposal2.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=2]"));
+//
+  app = proposal.Install(c.Get(sinkNode));
+  app2 = proposal2.Install(c.Get(sinkNode));
+
+  app.Start(Seconds(35.0));
+  app.Stop(Seconds(135.0));
+  app2.Start(Seconds(136.0));
+  app2.Stop(Seconds(195.0));
 
 
   for(uint32_t j=1;j<numNodes;j++){
-	  InetSocketAddress local = InetSocketAddress ("10.1.1.1", 49152+j);
-	  std::string selectedprotocol = "ns3::UdpSocketFactory";
-	  SimulationProposalHelper proposal (selectedprotocol, local);
+//	  InetSocketAddress local = InetSocketAddress ("10.1.1.1", 49152+j);
+//	  std::string selectedprotocol = "ns3::UdpSocketFactory";
+//	  SimulationProposalHelper proposal (selectedprotocol, local);
+//
+//
+//	  SimulationProposalReactiveHelper proposal2 (selectedprotocol);
 
 
-	  SimulationProposalReactiveHelper proposal2 (selectedprotocol);
 
-
-
-	  //自分で付け加えた(植田)
-
-	  proposal.SetConstantRate(DataRate(datarate));
-	  proposal.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=3]"));
-	  proposal.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
-
-	  proposal2.SetConstantRate(DataRate(datarate));
-	  proposal2.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=2]"));
-	  proposal2.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
-
-	  ApplicationContainer app,app2;
-
+//	  //自分で付け加えた(植田)
+//
+//	  proposal.SetConstantRate(DataRate(datarate));
+//	  proposal.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=3]"));
+//	  proposal.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
+//
+//	  proposal2.SetConstantRate(DataRate(datarate));
+//	  proposal2.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=4]"));
+//	  proposal2.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=2]"));
+//
+//
 
 //	  app = proposal.Install(c.Get(sinkNode));
-//	  app = proposal.Install(c.Get(j));
-	  app2 = proposal2.Install(c.Get(sinkNode));
+//	  app2 = proposal2.Install(c.Get(sinkNode));
+
+
+	  app = proposal.Install(c.Get(j));
 	  app2 = proposal2.Install(c.Get(j));
-//	  app.Start(Seconds(35.0));
-//	  app.Stop(Seconds(135.0));
-	  app2.Start(Seconds(35.0));
-	  app2.Stop(Seconds(135.0));
+
+	  app.Start(Seconds(35.0));
+	  app.Stop(Seconds(135.0));
+	  app2.Start(Seconds(136.0));
+	  app2.Stop(Seconds(195.0));
 
   }
+
 
 
   FlowMonitorHelper flowmon;

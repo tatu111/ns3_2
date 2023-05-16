@@ -48,7 +48,7 @@
 #include "ns3/olsr-routing-protocol.h"
 #include <random>
 #include "ns3/ipv4-list-routing.h"
-#include "simulation-proposal.h"
+#include "ns3/simulation-proposal.h"
 #include "simulation-proposal-reactive.h"
 #include "ns3/simulation-header.h"
 #include "ns3/seq-ts-size-header.h"
@@ -65,7 +65,6 @@ SimulationProposalReactive::GetTypeId (void)
 {
   static TypeId tid = TypeId ("ns3::SimulationProposalReactive")
     .SetParent<Application> ()
-	.SetParent<olsr::RoutingProtocol> ()
     .SetGroupName("Applications")
     .AddConstructor<SimulationProposalReactive> ()
     .AddAttribute ("DataRate", "The data rate in on state.",
@@ -217,22 +216,21 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
   Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
 
 
-
-
-  Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();
-  Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (ipv4_proto);
-  if (list)
-  {
-	  int16_t priority;
-	  Ptr<Ipv4RoutingProtocol> listProto;
-	  Ptr<olsr::RoutingProtocol> protocol;
-	  for (uint32_t i = 0; i < list->GetNRoutingProtocols (); i++)
+//  Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();
+//  Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (ipv4_proto);
+//  if (list)
+//  {
+//	  int16_t priority;
+	  Ptr<Application> app;
+	  Ptr<SimulationProposal> propo;
+	  for (uint32_t i = 0; i < node->GetNApplications(); i++)
 	  {
-		  listProto = list->GetRoutingProtocol (i, priority);
-         protocol = DynamicCast<olsr::RoutingProtocol> (listProto);
+		  app = node->GetApplication(i);
+         propo = DynamicCast<SimulationProposal> (app);
          //NS_ASSERT (listOlsr);
 
-         if (protocol)
+
+         if (propo)
            {
         	 std::cout<<"ok"<<std::endl;
 
@@ -244,8 +242,23 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
         		 {
         			 m_socket = Socket::CreateSocket (GetNode (), m_tid);
 
-                   m_socket->Listen ();
+                   Ipv4Address addr = ipv4->GetAddress (1, 0).GetLocal ();
 
+                   std::cout<<addr<<std::endl;
+
+                   InetSocketAddress address = InetSocketAddress (addr, 49152);
+
+                   m_local = address;
+
+
+//                   m_socket->Bind(address);
+
+					 if (m_socket->Bind (address) == -1)
+					 {
+						 NS_FATAL_ERROR ("Failed to bind socket");
+					 }
+
+					 m_socket->Listen ();
 
 //              	 //自分で作成
 //               SimulationProposal simulation;
@@ -286,55 +299,107 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
 //                       }
 //                 }
 
-              	   //
-
-                   if (addressUtils::IsMulticast (m_local))
-                      {
-                	   Ptr<UdpSocket> udpSocket = DynamicCast<UdpSocket> (m_socket);
-                	   if (udpSocket)
-                   			{
-                		   // equivalent to setsockopt (MCAST_JOIN_GROUP)
-                   	   udpSocket->MulticastJoinGroup (0, m_local);
-                   			}
-                   	   else
-                   		    {
-                   		   NS_FATAL_ERROR ("Error: joining multicast on a non-UDP socket");
-                   			}
-                      }
-                 }
+					 if (addressUtils::IsMulticast (address))
+					 {
+						 Ptr<UdpSocket> udpSocket = DynamicCast<UdpSocket> (m_socket);
+						 if (udpSocket)
+						 {
+							 // equivalent to setsockopt (MCAST_JOIN_GROUP)
+							 udpSocket->MulticastJoinGroup (0, address);
+						 }
+						 else
+						 {
+							 NS_FATAL_ERROR ("Error: joining multicast on a non-UDP socket");
+						 }
+					 }
 
 
 
-        		 m_socket->SetRecvCallback (MakeCallback (&SimulationProposalReactive::HandleRead, this));
-               m_socket->SetAcceptCallback (
-               MakeNullCallback<bool, Ptr<Socket>, const Address &> (),
-               MakeCallback (&SimulationProposalReactive::HandleAccept, this));
-               m_socket->SetCloseCallbacks (
-               MakeCallback (&SimulationProposalReactive::HandlePeerClose, this),
-               MakeCallback (&SimulationProposalReactive::HandlePeerError, this));
 
-               ScheduleStartEvent ();
+					 m_socket->SetRecvCallback (MakeCallback (&SimulationProposalReactive::HandleRead, this));
+					 m_socket->SetAcceptCallback (
+							 MakeNullCallback<bool, Ptr<Socket>, const Address &> (),
+							 MakeCallback (&SimulationProposalReactive::HandleAccept, this));
+					 m_socket->SetCloseCallbacks (
+							 MakeCallback (&SimulationProposalReactive::HandlePeerClose, this),
+							 MakeCallback (&SimulationProposalReactive::HandlePeerError, this));
+
+					 m_socket->SetConnectCallback (
+							 MakeCallback (&SimulationProposalReactive::ConnectionSucceeded, this),
+							 MakeCallback (&SimulationProposalReactive::ConnectionFailed, this));
+        		 }
+
+       	       ScheduleStartEvent ();
 
         	 }
         	 else
         	 {
         		 if(!m_socket)
         		 {
+
+        			 Ipv4Address addr = ipv4->GetAddress (1, 0).GetLocal ();
+        			 InetSocketAddress address = InetSocketAddress (addr, 49152);
+
+        			 m_peer = address;
+
         			 m_socket = Socket::CreateSocket (node, m_tid);
 
+//
+//        			 int ret = -1;
+//
+//        			 if (! m_peer.IsInvalid())
+//        			 {
+//        				 ret = m_socket->Bind (m_peer);
+//        			 }
+//        			 else
+//        			 {
+//        				 if (Inet6SocketAddress::IsMatchingType (m_peer))
+//        				 {
+//        					 ret = m_socket->Bind6 ();
+//        				 }
+//        				 else if (InetSocketAddress::IsMatchingType (m_peer) ||
+//        						 PacketSocketAddress::IsMatchingType (m_peer))
+//        				 {
+//        					 ret = m_socket->Bind ();
+//        				 }
+//        			 }
+//
+//        			 if (ret == -1)
+//        			 {
+//        				 NS_FATAL_ERROR ("Failed to bind socket");
+//        			 }
+
+        			 if (m_socket->Bind (m_peer) == -1)
+        			 {
+        				 NS_FATAL_ERROR ("Failed to bind socket");
+        			 }
+
+        			 if (addressUtils::IsMulticast (address))
+        			 {
+        				 Ptr<UdpSocket> udpSocket = DynamicCast<UdpSocket> (m_socket);
+        				 if (udpSocket)
+        				 {
+        					 // equivalent to setsockopt (MCAST_JOIN_GROUP)
+        					 udpSocket->MulticastJoinGroup (0, address);
+        				 }
+        				 else
+        				 {
+        					 NS_FATAL_ERROR ("Error: joining multicast on a non-UDP socket");
+        				 }
+        			 }
+
         			 m_socket->Listen ();
+
+
+        			 m_socket->SetRecvCallback (MakeCallback (&SimulationProposalReactive::HandleRead, this));
+        			 m_socket->SetAcceptCallback (
+        					 MakeNullCallback<bool, Ptr<Socket>, const Address &> (),
+							 MakeCallback (&SimulationProposalReactive::HandleAccept, this));
+        			 m_socket->SetCloseCallbacks (
+        					 MakeCallback (&SimulationProposalReactive::HandlePeerClose, this),
+							 MakeCallback (&SimulationProposalReactive::HandlePeerError, this));
         		 }
-
-        		 m_socket->SetRecvCallback (MakeCallback (&SimulationProposalReactive::HandleRead, this));
-        		 m_socket->SetAcceptCallback (
-        				 MakeNullCallback<bool, Ptr<Socket>, const Address &> (),
-						 MakeCallback (&SimulationProposalReactive::HandleAccept, this));
-        		 m_socket->SetConnectCallback (
-        				 MakeCallback (&SimulationProposalReactive::ConnectionSucceeded, this),
-						 MakeCallback (&SimulationProposalReactive::ConnectionFailed, this));
-
-
-           }
+        	 }
 
 
 
@@ -391,7 +456,7 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
 
            }
 	  }
-  }
+//  }
 
 
 
@@ -472,7 +537,6 @@ void SimulationProposalReactive::StartSending ()
   ScheduleStopEvent ();
   ScheduleNextTx ();  // Schedule the send packet event
 
-//  SendPacket ();
 //  ScheduleStopEvent ();
 }
 
@@ -499,18 +563,20 @@ void SimulationProposalReactive::ScheduleNextTx ()
 //      NS_LOG_LOGIC ("nextTime = " << nextTime.As (Time::S));
 //      m_sendEvent = Simulator::Schedule (nextTime,
 //                                         &SimulationProposalReactive::SendPacket, this);
-	  int send_count = 0;
+
+
 	  if(send_count<1){
-	  		  m_residualBits = 0;
-	  		  NS_ABORT_MSG_IF (m_residualBits > m_pktSize * 8, "Calculation to compute next send time will overflow");
-	  		  uint32_t bits = m_pktSize * 8 - m_residualBits;
-	  		  NS_LOG_LOGIC ("bits = " << bits);
-	  		  Time nextTime (Seconds (bits /
-	  								  static_cast<double>(m_cbrRate.GetBitRate ()))); // Time till next packet
-	  		  NS_LOG_LOGIC ("nextTime = " << nextTime.As (Time::S));
-	  		  m_sendEvent = Simulator::Schedule (nextTime,
-	  											 &SimulationProposalReactive::SendPacket, this);
-	  		  send_count += 1;
+
+		  m_residualBits = 0;
+		  NS_ABORT_MSG_IF (m_residualBits > m_pktSize * 8, "Calculation to compute next send time will overflow");
+		  uint32_t bits = m_pktSize * 8 - m_residualBits;
+		  NS_LOG_LOGIC ("bits = " << bits);
+		  Time nextTime (Seconds (bits /
+				  static_cast<double>(m_cbrRate.GetBitRate ()))); // Time till next packet
+		  NS_LOG_LOGIC ("nextTime = " << nextTime.As (Time::S));
+		  m_sendEvent = Simulator::Schedule (nextTime,
+				  &SimulationProposalReactive::SendPacket, this);
+		  send_count += 1;
 	  	  }
     }
   else
@@ -545,6 +611,8 @@ void SimulationProposalReactive::SendPacket ()
 
   NS_ASSERT (m_sendEvent.IsExpired ());
 
+  std::cout<<"send"<<std::endl;
+
   Ptr<Packet> packet;
   if (m_unsentPacket)
     {
@@ -564,49 +632,68 @@ void SimulationProposalReactive::SendPacket ()
 //      m_txTraceWithSeqTsSize (packet, from, to, header);
 //      packet->AddHeader (header);
 	  //自分で作成
-	  SimulationProposal simulation;
-	  sink_core_candidate_reactive = simulation.GetSinkCoreCandidate();
-	  uint32_t max_core_candidate = 0;
-
-	  for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
-			  i != sink_core_candidate_reactive.end();i++)
+	  Ptr<Node> node = GetNode();
+	  Ptr<Application> app;
+	  Ptr<SimulationProposal> propo;
+	  for (uint32_t i = 0; i < node->GetNApplications(); i++)
 	  {
-		  if(max_core_candidate < i->second)
+		  app = node->GetApplication(i);
+		  propo = DynamicCast<SimulationProposal> (app);
+		  //NS_ASSERT (listOlsr);
+
+
+		  if (propo)
 		  {
-			  max_core_candidate = i->second;
-		  }
-	  }
+			  sink_core_candidate_reactive = propo->GetSinkCoreCandidate();
+			  std::cout<<sink_core_candidate_reactive.size()<<std::endl;
+			  uint32_t max_core_candidate = 0;
 
-	  for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
-			  i != sink_core_candidate_reactive.end();i++)
-	  {
-		  if((max_core_candidate = i->second))
-		  {
-			  m_socket->Bind(i->first);
-			  Ptr<Packet> packet;
-			  Address from, to;
-			  m_socket->GetSockName (from);
-			  m_socket->GetPeerName (to);
+			  for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
+					  i != sink_core_candidate_reactive.end();i++)
+			  {
+				  if(max_core_candidate < i->second)
+				  {
+					  max_core_candidate = i->second;
+				  }
+			  }
 
-			  SimulationHeader header;
-			  header.SetSeq (m_seq++);
-			  header.SetSize (m_pktSize);
-			  header.GetCore();
+			  for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
+					  i != sink_core_candidate_reactive.end();i++)
+			  {
+				  if((max_core_candidate == i->second))
+				  {
+//					  Address address = i->first.ConvertTo();
+					  InetSocketAddress address = InetSocketAddress (i->first, 49152);
 
-			  header.SetDestinationAddress(i->first);
+					  m_socket->Connect (address);
 
-			  NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
-			  packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
-			  // Trace before adding header, for consistency with PacketSink
-			  packet->AddHeader (header);
-			  m_txTraceWithSeqTsSize2 (packet, from, to, header);
+					  Ptr<Packet> packet;
+					  Address from, to;
+					  std::cout<<m_socket->Connect (address)<<std::endl;
 
-			  m_socket->Connect (i->first);
+					  m_socket->GetSockName (from);
+					  m_socket->GetPeerName (to);
 
-			  m_socket->Send (packet, 0);
+					  SimulationHeader header;
+					  header.SetSeq (m_seq++);
+					  header.SetSize (m_pktSize);
+					  header.GetCore();
 
-			  break;
+					  header.SetDestinationAddress(i->first);
 
+					  NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
+					  packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
+					  // Trace before adding header, for consistency with PacketSink
+					  m_txTraceWithSeqTsSize2 (packet, from, to, header);
+					  packet->AddHeader (header);
+
+
+					  m_socket->SendTo(packet, 0, address);
+
+//					  break;
+
+				  }
+			  }
 		  }
 	  }
 
@@ -721,6 +808,8 @@ SimulationProposalReactive::PacketReceived (const Ptr<Packet> &p, const Address 
   Ptr<Node> node = GetNode();
   Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
 
+  std::cout<<"receive"<<std::endl;
+
   auto itBuffer = m_buffer.find (from);
   if (itBuffer == m_buffer.end ())
     {
@@ -734,30 +823,32 @@ SimulationProposalReactive::PacketReceived (const Ptr<Packet> &p, const Address 
   NS_ABORT_IF (header.GetSize () == 0);
 
   while (buffer->GetSize () >= header.GetSize ())
-    {
-      NS_LOG_DEBUG ("Removing packet of size " << header.GetSize () << " from buffer of size " << buffer->GetSize ());
-      Ptr<Packet> complete = buffer->CreateFragment (0, static_cast<uint32_t> (header.GetSize ()));
-      buffer->RemoveAtStart (static_cast<uint32_t> (header.GetSize ()));
+  {
+	  NS_LOG_DEBUG ("Removing packet of size " << header.GetSize () << " from buffer of size " << buffer->GetSize ());
+	  Ptr<Packet> complete = buffer->CreateFragment (0, static_cast<uint32_t> (header.GetSize ()));
+	  buffer->RemoveAtStart (static_cast<uint32_t> (header.GetSize ()));
 
-      complete->RemoveHeader (header);
+	  complete->RemoveHeader (header);
 
-      if(header.GetMessageType() == SimulationHeader::CORE_MESSAGE)
+
+	  if(header.GetMessageType() == SimulationHeader::CORE_MESSAGE)
       {
 //    	  SimulationHeader::Core &core = header.GetCore();
 
-    	  if(header.GetDestinationAddress() == ipv4->GetAddress (0, 0).GetLocal ())
-    	  {
-    		  core_flag = 1;
-    	  }
+//		  std::cout<<header.GetMessageType()<<std::endl;
 
-    	  m_socket->Connect (header.GetDestinationAddress());
+		  std::cout<<ipv4->GetAddress (1, 0).GetLocal ()<<std::endl;
+
+		  core_flag = 1;
+
+		  m_socket->Connect (header.GetDestinationAddress());
 //    	  m_socket->SendTo (p, 0, header.GetDestinationAddress());
       }
 
       //floodingメッセージを受け取った際のアクション
-      if(header.GetMessageType() == SimulationHeader::FLOODING_MESSAGE)
+	  if(header.GetMessageType() == SimulationHeader::FLOODING_MESSAGE)
       {
-    	  flooding_flag = 1;
+		  flooding_flag = 1;
       }
 
 
@@ -765,9 +856,10 @@ SimulationProposalReactive::PacketReceived (const Ptr<Packet> &p, const Address 
 
 
       //coreノードであるかの確認
-      if(core_flag == 1)
+	  if(core_flag == 1)
       {
     	  //coreノードの処理をコーディングした関数
+		  std::cout<<"core"<<std::endl;
     	  CoreFlooding();
       }
 
@@ -781,15 +873,15 @@ SimulationProposalReactive::PacketReceived (const Ptr<Packet> &p, const Address 
 
 
 
-      if (buffer->GetSize () > header.GetSerializedSize ())
-        {
-          buffer->PeekHeader (header);
-        }
-      else
-        {
-          break;
-        }
-    }
+	  if (buffer->GetSize () > header.GetSerializedSize ())
+	  {
+		  buffer->PeekHeader (header);
+	  }
+	  else
+	  {
+		  break;
+	  }
+  }
 }
 
 
@@ -822,9 +914,10 @@ void SimulationProposalReactive::CoreFlooding ()
   packet->AddHeader (header);
 
 
-  Ipv4InterfaceAddress iface = ipv4->GetAddress (0, 0);
+  Ipv4InterfaceAddress iface = ipv4->GetAddress (1, 0);
   Ipv4Address bcast = iface.GetLocal ().GetSubnetDirectedBroadcast (iface.GetMask ());
-  m_socket_local->SendTo (packet, 0, InetSocketAddress (bcast, 49250));
+  m_socket_local->SendTo (packet, 0, InetSocketAddress (bcast, 49152));
+//  std::cout<<m_socket_local->SendTo (packet, 0, InetSocketAddress (bcast, 49250))<<std::endl;
 
 }
 

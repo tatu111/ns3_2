@@ -210,13 +210,21 @@ public:
    */
   static Ipv4Address GetLoopback (void);
 
-private:
 
   /**
    * \brief Convert to an Address type
    * \return the Address corresponding to this object.
    */
   Address ConvertTo (void) const;
+
+
+private:
+
+//  /**
+//   * \brief Convert to an Address type
+//   * \return the Address corresponding to this object.
+//   */
+//  Address ConvertTo (void) const;
 
   /**
    * \brief Get the underlying address type (automatically assigned).

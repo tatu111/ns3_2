@@ -242,6 +242,8 @@ private:
 
   uint32_t			flooding_flag = 0;   //自ノードがfloodingメッセージを受け取った場合1を格納
 
+  int send_count = 0;
+
 
   /// Traced Callback: transmitted packets.
   TracedCallback<Ptr<const Packet> > m_txTrace;

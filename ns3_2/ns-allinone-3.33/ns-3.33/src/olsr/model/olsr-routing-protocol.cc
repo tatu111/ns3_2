@@ -2227,7 +2227,7 @@ RoutingProtocol::Resource_sum(){
 			threshold_duplicate=1;
 		}
 	}
-	InetSocketAddress inetAddr (m_mainAddress, 49152 + m_ipv4->GetObject<Node> ()->GetId ());
+	InetSocketAddress inetAddr (m_mainAddress, 49152);
 	if(threshold_duplicate==0){
 		if(x_sum>=50){//閾値を50としている
 			m_resource_threshold.insert(std::make_pair(m_ipv4->GetObject<Node> (), inetAddr));
