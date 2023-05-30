@@ -109,6 +109,7 @@ SimulationHeader::Serialize (Buffer::Iterator start) const
   i.WriteU8 (m_messageType);
   i.WriteU8 (m_hopCount);
   i.WriteHtonU64 (m_size);
+  i.WriteHtonU32(m_destinationAddress.Get());
   SeqTsHeader::Serialize (i);
 
   switch (m_messageType)
@@ -144,6 +145,7 @@ SimulationHeader::Deserialize (Buffer::Iterator start)
   m_messageType  = (MessageType) i.ReadU8 ();
   m_hopCount  = i.ReadU8 ();
   m_size = i.ReadNtohU64 ();
+  m_destinationAddress = Ipv4Address (i.ReadNtohU32 ());
   SeqTsHeader::Deserialize (i);
 
   switch (m_messageType)
@@ -161,7 +163,7 @@ SimulationHeader::Deserialize (Buffer::Iterator start)
   	      size += m_message.floodingreturn.Deserialize (i);
   	      break;
   	    case NOTICE_MESSAGE:
-  	      size += m_message.notice.Deserialize (i);
+  	      size += m_message.notice.Deserialize (i, m_size - 16);
   	      break;
   	    default:
   	      NS_ASSERT (false);
@@ -235,11 +237,22 @@ SimulationHeader::Core::Deserialize(Buffer::Iterator start)
 
 
 
+void
+SimulationHeader::Flooding::SetTimeToLive (uint8_t timeToLive)
+{
+	m_timeToLive = timeToLive;
+}
+
+uint8_t
+SimulationHeader::Flooding::GetTimeToLive () const
+{
+	return m_timeToLive;
+}
 
 uint32_t
 SimulationHeader::Flooding::GetSerializedSize (void) const
 {
-	uint32_t size = 0;
+	uint32_t size = 8;
 	return size;
 }
 
@@ -247,7 +260,8 @@ void
 SimulationHeader::Flooding::Serialize(Buffer::Iterator start) const
 {
 	NS_LOG_FUNCTION (this << &start);
-//	Buffer::Iterator i = start;
+	Buffer::Iterator i = start;
+	i.WriteHtonU32(m_timeToLive);
 
 }
 
@@ -255,7 +269,8 @@ uint32_t
 SimulationHeader::Flooding::Deserialize(Buffer::Iterator start)
 {
 
-//	Buffer::Iterator i = start;
+	Buffer::Iterator i = start;
+	m_timeToLive = i.ReadNtohU32();
 
 	return GetSerializedSize ();
 }
@@ -272,23 +287,39 @@ void
 SimulationHeader::FloodingReturn::Serialize(Buffer::Iterator start) const
 {
 	NS_LOG_FUNCTION (this << &start);
-//	Buffer::Iterator i = start;
-
+	Buffer::Iterator i = start;
+	i.WriteHtonU32(m_floodingreturn_resource);
 }
 
 uint32_t
 SimulationHeader::FloodingReturn::Deserialize(Buffer::Iterator start)
 {
 
-//	Buffer::Iterator i = start;
-
+	Buffer::Iterator i = start;
+	m_floodingreturn_resource = i.ReadNtohU32();
 	return GetSerializedSize ();
 }
+
+void
+SimulationHeader::FloodingReturn::SetResource (uint32_t resource_sum)
+{
+	m_floodingreturn_resource = resource_sum;
+}
+
+uint32_t
+SimulationHeader::FloodingReturn::GetResource (void) const
+{
+  return m_floodingreturn_resource;
+}
+
 
 uint32_t
 SimulationHeader::Notice::GetSerializedSize (void) const
 {
-	uint32_t size = 16;
+	uint32_t size = 2;
+
+	size += 8 * this->m_resource_floodingreturn.size();
+
 	return size;
 }
 
@@ -297,19 +328,54 @@ void
 SimulationHeader::Notice::Serialize(Buffer::Iterator start) const
 {
 	NS_LOG_FUNCTION (this << &start);
-//	Buffer::Iterator i = start;
-
+	Buffer::Iterator i = start;
+//	std::cout<<m_resource_floodingreturn.size()<<std::endl;
+	i.WriteHtonU16(2 + m_resource_floodingreturn.size() * 8);
+	for(std::map<Ipv4Address, uint32_t>::const_iterator iter = m_resource_floodingreturn.begin ();
+		       iter != m_resource_floodingreturn.end (); iter++)
+	{
+		i.WriteU32(iter->first.Get());
+		i.WriteU32(iter->second);
+	}
 }
 
 uint32_t
-SimulationHeader::Notice::Deserialize(Buffer::Iterator start)
+SimulationHeader::Notice::Deserialize(Buffer::Iterator start, uint32_t messageSize)
 {
-//
-//	Buffer::Iterator i = start;
+	NS_LOG_FUNCTION (this << &start);
+	Buffer::Iterator i = start;
 
-	return GetSerializedSize ();
+	uint16_t size = messageSize;
+	uint16_t lmSize = i.ReadNtohU16 ();
+//	std::cout<<size<<std::endl;
+//	size -= 2;
+//	while (size)
+//	{
+//		uint16_t lmSize = i.ReadNtohU16 ();
+	for (int n = (lmSize - 2) / 8; n; --n)
+	{
+		Ipv4Address addr = Ipv4Address (i.ReadU32());
+		uint32_t resource = i.ReadU32();
+		m_resource_floodingreturn.insert (std::make_pair(addr, resource));
+	}
+	size -= lmSize;
+//
+//	}
+
+	return messageSize;
 }
 
+void
+SimulationHeader::Notice::SetResource (std::map<Ipv4Address, uint32_t> resource)
+{
+	m_resource_floodingreturn = resource;
+}
+
+std::map<Ipv4Address, uint32_t>
+SimulationHeader::Notice::GetResource (void) const
+{
+  return m_resource_floodingreturn;
+}
 
 
 } // namespace ns3

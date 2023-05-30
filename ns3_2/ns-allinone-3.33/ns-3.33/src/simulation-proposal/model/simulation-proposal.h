@@ -177,6 +177,7 @@ public:
 
 
   int send_count = 0;
+  Address         m_peer;         //!< Peer address
 
   //sinkが把握しているcoreノード候補
   std::map<Ipv4Address, uint32_t> sink_core_candidate;
@@ -223,7 +224,6 @@ private:
 
   Ptr<Socket>     m_socket;       //!< Associated socket
   Ptr<Socket>     m_socket_local;       //!< Associated socket(local)
-  Address         m_peer;         //!< Peer address
   Address         m_local;        //!< Local address to bind to
   bool            m_connected;    //!< True if connected
   Ptr<RandomVariableStream>  m_onTime;       //!< rng for On Time

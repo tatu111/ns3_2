@@ -1,6 +1,6 @@
-# project ns (3.33) configured on Wed May 10 19:58:01 2023 by
+# project ns (3.33) configured on Sun May 21 14:33:36 2023 by
 # waf 2.0.21 (abi 20, python 3080af0 on linux)
-# using ./waf configure --build-profile=debug --enable-examples --enable-tests
+# using ./waf configure --build-profile=debug --enable-examples --visualize
 #
 ----------------------------------------
 Setting top to
