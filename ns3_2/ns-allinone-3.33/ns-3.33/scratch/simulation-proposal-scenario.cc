@@ -232,28 +232,29 @@ int main (int argc, char *argv[])
   ApplicationContainer app,app2;
 
   InetSocketAddress local = InetSocketAddress ("10.1.1.1", 49152);
+  InetSocketAddress local2 = InetSocketAddress ("10.1.1.1", 49153);
   std::string selectedprotocol = "ns3::UdpSocketFactory";
   SimulationProposalHelper proposal (selectedprotocol, local);
 
-  SimulationProposalReactiveHelper proposal2 (selectedprotocol);
+  SimulationProposalReactiveHelper proposal2 (selectedprotocol, local2);
 
 
 
   proposal.SetConstantRate(DataRate(datarate));
-  proposal.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=3]"));
-  proposal.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=1]"));
+  proposal.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=6]"));
+  proposal.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=3]"));
 
   proposal2.SetConstantRate(DataRate(datarate));
-  proposal2.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=4]"));
-  proposal2.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=2]"));
+  proposal2.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=6]"));
+  proposal2.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=3]"));
 //
   app = proposal.Install(c.Get(sinkNode));
   app2 = proposal2.Install(c.Get(sinkNode));
 
   app.Start(Seconds(35.0));
-  app.Stop(Seconds(135.0));
-  app2.Start(Seconds(136.0));
-  app2.Stop(Seconds(195.0));
+  app.Stop(Seconds(200.0));
+  app2.Start(Seconds(50.0));
+  app2.Stop(Seconds(200.0));
 
 
   for(uint32_t j=1;j<numNodes;j++){
@@ -285,10 +286,11 @@ int main (int argc, char *argv[])
 	  app = proposal.Install(c.Get(j));
 	  app2 = proposal2.Install(c.Get(j));
 
+
 	  app.Start(Seconds(35.0));
-	  app.Stop(Seconds(135.0));
-	  app2.Start(Seconds(136.0));
-	  app2.Stop(Seconds(195.0));
+	  app.Stop(Seconds(200.0));
+	  app2.Start(Seconds(50.0));
+	  app2.Stop(Seconds(200.0));
 
   }
 
@@ -332,7 +334,7 @@ int main (int argc, char *argv[])
 
 
 
-  Simulator::Stop (Seconds (200.0));
+  Simulator::Stop (Seconds (150.0));
   Simulator::Run ();
 
 //*/

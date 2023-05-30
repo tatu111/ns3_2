@@ -163,6 +163,7 @@ public:
    */
   std::list<Ptr<Socket> > GetAcceptedSockets (void) const;
 
+
   /**
    * TracedCallback signature for a reception with addresses and SeqTsSizeHeader
    *
@@ -209,8 +210,21 @@ private:
    */
   void SendPacket ();
 
+  //coreノードの操作
+  void CoreFlooding ();
+
+  //フラッティング処理
+  void NodeFlooding (SimulationHeader header);
+
+  //フラッティング処理に対する返信
+  void RespondFlooding (SimulationHeader header);
+
+  void RespondFloodingReturn ();
+
+
   Ptr<Socket>     m_socket;       //!< Associated socket
   Ptr<Socket>     m_socket_local;       //!< Associated socket(local)
+  Ptr<Socket>     m_recvSocket;       //!< Associated socket(local)
   Address         m_peer;         //!< Peer address
   Address         m_local;        //!< Local address to bind to
   bool            m_connected;    //!< True if connected
@@ -238,12 +252,17 @@ private:
 
   uint32_t        core_flag = 0;      //自ノードがcoreノードである場合1を格納
 
-//  EventId         m_CorecheckEvent;   //Event id of checking core_flag
-
   uint32_t			flooding_flag = 0;   //自ノードがfloodingメッセージを受け取った場合1を格納
 
   int send_count = 0;
 
+  EventId         m_floodingEvent;     //!< Event id for flooding
+  Time flooding_interval = Seconds(0.001);
+  std::map<Ipv4Address, uint32_t> m_resource_flooding;
+  std::map<Ipv4Address, uint32_t> m_sort_resource_flooding;
+  EventId         m_floodingreturnEvent;     //!< Event id for flooding
+  int floodingreturn_flag = 0;
+  Time floodingreturn_interval = Seconds(2.000);
 
   /// Traced Callback: transmitted packets.
   TracedCallback<Ptr<const Packet> > m_txTrace;
@@ -269,11 +288,9 @@ private:
    */
   void ScheduleStopEvent ();
 
-//  //coreノードがあるかのcheckイベント
-//  void ScheduleCorecheckEvent ();
 
-  //coreノードがあるかのcheck and 引き続きの操作
-  void CoreFlooding ();
+
+
 
 
 
@@ -319,7 +336,7 @@ private:
          * The method assembles a received byte stream and extracts SeqTsSizeHeader
          * instances from the stream to export in a trace source.
          */
-  void PacketReceived (const Ptr<Packet> &p, const Address &from, const Address &localAddress);
+  void PacketReceived (const Ptr<Packet> &p, const Address &from, const Address &localAddress, Ptr<Socket> socket, Ptr<Packet> packet);
 
         /**
          * \brief Hashing for the Address class

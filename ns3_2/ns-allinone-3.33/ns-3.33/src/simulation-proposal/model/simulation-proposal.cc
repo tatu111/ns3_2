@@ -757,12 +757,12 @@ SimulationProposal::PacketReceived (const Ptr<Packet> &p, const Address &from,
     	  for(std::map<Ipv4Address, uint32_t>::iterator iter = sink_core_candidate.begin();iter != sink_core_candidate.end();
     				iter++)
     	  {
-    		  std::cout << iter->first << std::endl;
+//    		  std::cout << iter->first << std::endl;
     	  }
     	  sink_core_candidate[senderIface] = proactive.GetResource();
-    	  std::cout<<senderIface<<std::endl;
-    	  std::cout<<sink_core_candidate.size()<<std::endl;
-    	  std::cout<<proactive.GetResource()<<std::endl;
+//    	  std::cout<<senderIface<<std::endl;
+//    	  std::cout<<sink_core_candidate.size()<<std::endl;
+//    	  std::cout<<proactive.GetResource()<<std::endl;
 
     	  m_rxTraceWithSeqTsSize2 (complete, from, localAddress, header);
       }

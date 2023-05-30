@@ -209,19 +209,19 @@ RoutingProtocol::GetTypeId (void)
     .SetGroupName ("Olsr")
     .AddConstructor<RoutingProtocol> ()
     .AddAttribute ("HelloInterval", "HELLO messages emission interval.",
-                   TimeValue (Seconds (10)),
+                   TimeValue (Seconds (12)),
                    MakeTimeAccessor (&RoutingProtocol::m_helloInterval),
                    MakeTimeChecker ())
     .AddAttribute ("TcInterval", "TC messages emission interval.",
-                   TimeValue (Seconds (20)),
+                   TimeValue (Seconds (25)),
                    MakeTimeAccessor (&RoutingProtocol::m_tcInterval),
                    MakeTimeChecker ())
     .AddAttribute ("MidInterval", "MID messages emission interval.  Normally it is equal to TcInterval.",
-                   TimeValue (Seconds (20)),
+                   TimeValue (Seconds (25)),
                    MakeTimeAccessor (&RoutingProtocol::m_midInterval),
                    MakeTimeChecker ())
     .AddAttribute ("HnaInterval", "HNA messages emission interval.  Normally it is equal to TcInterval.",
-                   TimeValue (Seconds (20)),
+                   TimeValue (Seconds (25)),
                    MakeTimeAccessor (&RoutingProtocol::m_hnaInterval),
                    MakeTimeChecker ())
     .AddAttribute ("Willingness", "Willingness of a node to carry and forward traffic for other nodes.",

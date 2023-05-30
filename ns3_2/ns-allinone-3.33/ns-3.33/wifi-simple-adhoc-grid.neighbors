@@ -35,14 +35,17 @@ ARP Cache of node 33 at time 35
 ARP Cache of node 34 at time 35
 ARP Cache of node 35 at time 35
 ARP Cache of node 0 at time 70
+10.1.1.2 dev 0 lladdr 00-06-00:00:00:00:00:02 REACHABLE
 ARP Cache of node 1 at time 70
 10.1.1.1 dev 0 lladdr 00-06-00:00:00:00:00:01 REACHABLE
+10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
 ARP Cache of node 2 at time 70
+10.1.1.9 dev 0 lladdr 00-06-00:00:00:00:00:09 REACHABLE
 ARP Cache of node 3 at time 70
 ARP Cache of node 4 at time 70
 ARP Cache of node 5 at time 70
 ARP Cache of node 6 at time 70
-10.1.1.1 dev 0 lladdr 00-06-00:00:00:00:00:01 REACHABLE
+10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
 ARP Cache of node 7 at time 70
 10.1.1.2 dev 0 lladdr 00-06-00:00:00:00:00:02 REACHABLE
 ARP Cache of node 8 at time 70
@@ -53,10 +56,9 @@ ARP Cache of node 9 at time 70
 ARP Cache of node 10 at time 70
 ARP Cache of node 11 at time 70
 ARP Cache of node 12 at time 70
-10.1.1.7 dev 0 lladdr 00-06-00:00:00:00:00:07 REACHABLE
 ARP Cache of node 13 at time 70
 10.1.1.1 dev 0 lladdr 00-00-00 STALE
-10.1.1.13 dev 0 lladdr 00-06-00:00:00:00:00:0d REACHABLE
+10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
 ARP Cache of node 14 at time 70
 10.1.1.1 dev 0 lladdr 00-00-00 STALE
 10.1.1.9 dev 0 lladdr 00-06-00:00:00:00:00:09 REACHABLE
@@ -89,14 +91,17 @@ ARP Cache of node 33 at time 70
 ARP Cache of node 34 at time 70
 ARP Cache of node 35 at time 70
 ARP Cache of node 0 at time 105
+10.1.1.2 dev 0 lladdr 00-06-00:00:00:00:00:02 REACHABLE
 ARP Cache of node 1 at time 105
 10.1.1.1 dev 0 lladdr 00-06-00:00:00:00:00:01 REACHABLE
+10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
 ARP Cache of node 2 at time 105
+10.1.1.9 dev 0 lladdr 00-06-00:00:00:00:00:09 REACHABLE
 ARP Cache of node 3 at time 105
 ARP Cache of node 4 at time 105
 ARP Cache of node 5 at time 105
 ARP Cache of node 6 at time 105
-10.1.1.1 dev 0 lladdr 00-06-00:00:00:00:00:01 REACHABLE
+10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
 ARP Cache of node 7 at time 105
 10.1.1.2 dev 0 lladdr 00-06-00:00:00:00:00:02 REACHABLE
 ARP Cache of node 8 at time 105
@@ -107,10 +112,9 @@ ARP Cache of node 9 at time 105
 ARP Cache of node 10 at time 105
 ARP Cache of node 11 at time 105
 ARP Cache of node 12 at time 105
-10.1.1.7 dev 0 lladdr 00-06-00:00:00:00:00:07 REACHABLE
 ARP Cache of node 13 at time 105
 10.1.1.1 dev 0 lladdr 00-00-00 STALE
-10.1.1.13 dev 0 lladdr 00-06-00:00:00:00:00:0d REACHABLE
+10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
 ARP Cache of node 14 at time 105
 10.1.1.1 dev 0 lladdr 00-00-00 STALE
 10.1.1.9 dev 0 lladdr 00-06-00:00:00:00:00:09 REACHABLE
@@ -148,31 +152,28 @@ ARP Cache of node 1 at time 140
 10.1.1.1 dev 0 lladdr 00-06-00:00:00:00:00:01 REACHABLE
 10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
 ARP Cache of node 2 at time 140
+10.1.1.9 dev 0 lladdr 00-06-00:00:00:00:00:09 REACHABLE
 ARP Cache of node 3 at time 140
 ARP Cache of node 4 at time 140
 ARP Cache of node 5 at time 140
 ARP Cache of node 6 at time 140
-10.1.1.1 dev 0 lladdr 00-06-00:00:00:00:00:01 REACHABLE
+10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
 ARP Cache of node 7 at time 140
 10.1.1.2 dev 0 lladdr 00-06-00:00:00:00:00:02 REACHABLE
-10.1.1.9 dev 0 lladdr 00-06-00:00:00:00:00:09 REACHABLE
 ARP Cache of node 8 at time 140
 10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
-10.1.1.15 dev 0 lladdr 00-06-00:00:00:00:00:0f REACHABLE
 ARP Cache of node 9 at time 140
 10.1.1.1 dev 0 lladdr 00-00-00 STALE
 10.1.1.9 dev 0 lladdr 00-06-00:00:00:00:00:09 REACHABLE
 ARP Cache of node 10 at time 140
 ARP Cache of node 11 at time 140
 ARP Cache of node 12 at time 140
-10.1.1.7 dev 0 lladdr 00-06-00:00:00:00:00:07 REACHABLE
 ARP Cache of node 13 at time 140
 10.1.1.1 dev 0 lladdr 00-00-00 STALE
-10.1.1.13 dev 0 lladdr 00-06-00:00:00:00:00:0d REACHABLE
+10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
 ARP Cache of node 14 at time 140
 10.1.1.1 dev 0 lladdr 00-00-00 STALE
 10.1.1.9 dev 0 lladdr 00-06-00:00:00:00:00:09 REACHABLE
-10.1.1.21 dev 0 lladdr 00-06-00:00:00:00:00:15 REACHABLE
 ARP Cache of node 15 at time 140
 ARP Cache of node 16 at time 140
 ARP Cache of node 17 at time 140
@@ -201,62 +202,3 @@ ARP Cache of node 32 at time 140
 ARP Cache of node 33 at time 140
 ARP Cache of node 34 at time 140
 ARP Cache of node 35 at time 140
-ARP Cache of node 0 at time 175
-10.1.1.2 dev 0 lladdr 00-06-00:00:00:00:00:02 REACHABLE
-ARP Cache of node 1 at time 175
-10.1.1.1 dev 0 lladdr 00-06-00:00:00:00:00:01 REACHABLE
-10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
-ARP Cache of node 2 at time 175
-ARP Cache of node 3 at time 175
-ARP Cache of node 4 at time 175
-ARP Cache of node 5 at time 175
-ARP Cache of node 6 at time 175
-10.1.1.1 dev 0 lladdr 00-06-00:00:00:00:00:01 REACHABLE
-ARP Cache of node 7 at time 175
-10.1.1.2 dev 0 lladdr 00-06-00:00:00:00:00:02 REACHABLE
-10.1.1.9 dev 0 lladdr 00-06-00:00:00:00:00:09 REACHABLE
-ARP Cache of node 8 at time 175
-10.1.1.8 dev 0 lladdr 00-06-00:00:00:00:00:08 REACHABLE
-10.1.1.15 dev 0 lladdr 00-06-00:00:00:00:00:0f REACHABLE
-ARP Cache of node 9 at time 175
-10.1.1.1 dev 0 lladdr 00-00-00 STALE
-10.1.1.9 dev 0 lladdr 00-06-00:00:00:00:00:09 REACHABLE
-ARP Cache of node 10 at time 175
-ARP Cache of node 11 at time 175
-ARP Cache of node 12 at time 175
-10.1.1.7 dev 0 lladdr 00-06-00:00:00:00:00:07 REACHABLE
-ARP Cache of node 13 at time 175
-10.1.1.1 dev 0 lladdr 00-00-00 STALE
-10.1.1.13 dev 0 lladdr 00-06-00:00:00:00:00:0d REACHABLE
-ARP Cache of node 14 at time 175
-10.1.1.1 dev 0 lladdr 00-00-00 STALE
-10.1.1.9 dev 0 lladdr 00-06-00:00:00:00:00:09 REACHABLE
-10.1.1.21 dev 0 lladdr 00-06-00:00:00:00:00:15 REACHABLE
-ARP Cache of node 15 at time 175
-ARP Cache of node 16 at time 175
-ARP Cache of node 17 at time 175
-ARP Cache of node 18 at time 175
-ARP Cache of node 19 at time 175
-10.1.1.14 dev 0 lladdr 00-06-00:00:00:00:00:0e REACHABLE
-ARP Cache of node 20 at time 175
-10.1.1.1 dev 0 lladdr 00-00-00 STALE
-10.1.1.15 dev 0 lladdr 00-06-00:00:00:00:00:0f REACHABLE
-ARP Cache of node 21 at time 175
-10.1.1.1 dev 0 lladdr 00-00-00 STALE
-10.1.1.21 dev 0 lladdr 00-06-00:00:00:00:00:15 REACHABLE
-ARP Cache of node 22 at time 175
-ARP Cache of node 23 at time 175
-ARP Cache of node 24 at time 175
-ARP Cache of node 25 at time 175
-10.1.1.1 dev 0 lladdr 00-00-00 STALE
-10.1.1.20 dev 0 lladdr 00-06-00:00:00:00:00:14 REACHABLE
-ARP Cache of node 26 at time 175
-ARP Cache of node 27 at time 175
-ARP Cache of node 28 at time 175
-ARP Cache of node 29 at time 175
-ARP Cache of node 30 at time 175
-ARP Cache of node 31 at time 175
-ARP Cache of node 32 at time 175
-ARP Cache of node 33 at time 175
-ARP Cache of node 34 at time 175
-ARP Cache of node 35 at time 175

@@ -98,6 +98,8 @@ public:
   }
 
 
+
+
   void SetDestinationAddress (Ipv4Address destinationAddress)
   {
 	  m_destinationAddress = destinationAddress;
@@ -118,6 +120,16 @@ public:
   uint64_t GetSize (void) const;
 
 
+private:
+  uint64_t m_size {0}; //!< The 'size' information that the header is carrying
+  uint32_t m_resource;
+  MessageType m_messageType;
+  uint8_t m_hopCount;
+  Ipv4Address m_destinationAddress;
+//  uint8_t m_timeToLive;             //!< The time to live.
+
+
+public:
 
 
   // Inherited
@@ -158,6 +170,20 @@ public:
 
   struct Flooding
   {
+	  uint8_t m_timeToLive = 2;
+
+	  void SetTimeToLive (uint8_t timeToLive);
+//	  {
+//	    m_timeToLive = timeToLive;
+//	  }
+	  /**
+	   * Get the time to live.
+	   * \return The time to live.
+	   */
+	  uint8_t GetTimeToLive () const;
+//	  {
+//	    return m_timeToLive;
+//	  }
 
 	  void Serialize(Buffer::Iterator start) const;
 
@@ -169,20 +195,30 @@ public:
 
   struct FloodingReturn
   {
+	  uint32_t m_floodingreturn_resource;
 	  void Serialize(Buffer::Iterator start) const;
 
 	  uint32_t GetSerializedSize (void) const;
 
 	  uint32_t Deserialize (Buffer::Iterator start);
+
+	  void SetResource (uint32_t resource_sum);
+
+	  uint32_t GetResource (void) const;
   };
 
   struct Notice
   {
+	  std::map<Ipv4Address, uint32_t> m_resource_floodingreturn;
 	  void Serialize(Buffer::Iterator start) const;
 
 	  uint32_t GetSerializedSize (void) const;
 
-	  uint32_t Deserialize (Buffer::Iterator start);
+	  uint32_t Deserialize (Buffer::Iterator start, uint32_t messageSize);
+
+	  void SetResource (std::map<Ipv4Address, uint32_t> resource);
+
+	  std::map<Ipv4Address, uint32_t> GetResource (void) const;
   };
 
 
@@ -235,7 +271,7 @@ public:
      * Set the message type to TC and return the message content.
      * \returns The TC message.
      */
-    void GetFlooding ()
+    Flooding& GetFlooding ()
     {
       if (m_messageType == 0)
         {
@@ -245,7 +281,7 @@ public:
         {
           NS_ASSERT (m_messageType == FLOODING_MESSAGE);
         }
-//      return m_message.flooding;
+      return m_message.flooding;
     }
 
     /**
@@ -303,10 +339,10 @@ public:
      * Get the TC message.
      * \returns The TC message.
      */
-    const void GetFlooding () const
+    const Flooding& GetFlooding () const
     {
       NS_ASSERT (m_messageType == FLOODING_MESSAGE);
-//      return m_message.flooding;
+      return m_message.flooding;
     }
 
     /**
@@ -328,15 +364,6 @@ public:
 
 
 
-
-
-
-private:
-  uint64_t m_size {0}; //!< The 'size' information that the header is carrying
-  uint32_t m_resource;
-  MessageType m_messageType;
-  uint8_t m_hopCount;
-  Ipv4Address m_destinationAddress;
 };
 
 } // namespace ns3

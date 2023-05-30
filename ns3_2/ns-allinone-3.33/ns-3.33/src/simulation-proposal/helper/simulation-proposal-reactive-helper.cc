@@ -30,10 +30,11 @@
 
 namespace ns3 {
 
-SimulationProposalReactiveHelper::SimulationProposalReactiveHelper (std::string protocol)
+SimulationProposalReactiveHelper::SimulationProposalReactiveHelper (std::string protocol, Address address)
 {
   m_factory.SetTypeId ("ns3::SimulationProposalReactive");
   m_factory.Set ("Protocol", StringValue (protocol));
+  m_factory.Set ("Remote", AddressValue (address));
 }
 
 void
