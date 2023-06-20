@@ -236,17 +236,31 @@ int main (int argc, char *argv[])
   std::string selectedprotocol = "ns3::UdpSocketFactory";
   SimulationProposalHelper proposal (selectedprotocol, local);
 
-  SimulationProposalReactiveHelper proposal2 (selectedprotocol, local2);
+  SimulationProposalReactiveHelper proposal2 (selectedprotocol,local2);
+
+
+  //タスクの要求の発生
+  std::random_device seed_gen;
+  std::default_random_engine engine(seed_gen());
+
+  std::exponential_distribution<> dist(1.0);
+
+  for (int n = 0; n < 1000; n++) {
+      // 指数分布で乱数を生成する
+     Time task_interval = Seconds(dist(engine));
+
+   }
+
 
 
 
   proposal.SetConstantRate(DataRate(datarate));
-  proposal.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=6]"));
-  proposal.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=3]"));
+  proposal.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=20]"));
+  proposal.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=20]"));
 
   proposal2.SetConstantRate(DataRate(datarate));
-  proposal2.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=6]"));
-  proposal2.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=3]"));
+  proposal2.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=20]"));
+  proposal2.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=15]"));
 //
   app = proposal.Install(c.Get(sinkNode));
   app2 = proposal2.Install(c.Get(sinkNode));

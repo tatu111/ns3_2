@@ -1,6 +1,6 @@
-# project ns (3.33) configured on Sun May 21 14:33:36 2023 by
+# project ns (3.33) configured on Wed Jun  7 18:30:05 2023 by
 # waf 2.0.21 (abi 20, python 3080af0 on linux)
-# using ./waf configure --build-profile=debug --enable-examples --visualize
+# using ./waf configure --build-profile=debug --enable-examples --enable-tests
 #
 ----------------------------------------
 Setting top to
@@ -821,7 +821,7 @@ find program=['/usr/bin/python3-config', 'python3.8-config', 'python-config-3.8'
 --------------------------------------------------------------------------
 Asking python-config for pyembed '--cflags --libs --ldflags --embed' flags
 ['/usr/bin/python3-config', '--cflags', '--libs', '--ldflags', '--embed']
-out: -I/usr/include/python3.8 -I/usr/include/python3.8  -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.8-AEtGER/python3.8-3.8.10=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O3 -Wall
+out: -I/usr/include/python3.8 -I/usr/include/python3.8  -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.8-WxaceB/python3.8-3.8.10=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O3 -Wall
 -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
 -L/usr/lib/python3.8/config-3.8-x86_64-linux-gnu -L/usr/lib -lpython3.8 -lcrypt -lpthread -ldl  -lutil -lm -lm 
 
@@ -856,7 +856,7 @@ int main(int argc, char **argv)
 <==
 [1/2] Compiling [32mbuild/.conf_check_b367436918f7cae05acae23362c521b8/test.cpp[0m
 
-['/usr/bin/g++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-std=c++11', '-g', '-fdebug-prefix-map=/build/python3.8-AEtGER/python3.8-3.8.10=.', '-fstack-protector', '-g', '-fwrapv', '-O3', '-I/usr/include/python3.8', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3/dist-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3/dist-packages"', '-DNDEBUG', '../test.cpp', '-c', '-o/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build/.conf_check_b367436918f7cae05acae23362c521b8/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-std=c++11', '-g', '-fdebug-prefix-map=/build/python3.8-WxaceB/python3.8-3.8.10=.', '-fstack-protector', '-g', '-fwrapv', '-O3', '-I/usr/include/python3.8', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3/dist-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3/dist-packages"', '-DNDEBUG', '../test.cpp', '-c', '-o/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build/.conf_check_b367436918f7cae05acae23362c521b8/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_b367436918f7cae05acae23362c521b8/testbuild/testprog[0m
 
 ['/usr/bin/g++', 'test.cpp.1.o', '-o/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build/.conf_check_b367436918f7cae05acae23362c521b8/testbuild/testprog', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-L/usr/lib/python3.8/config-3.8-x86_64-linux-gnu', '-L/usr/lib', '-lpython3.8', '-lcrypt', '-lpthread', '-ldl', '-lutil', '-lm', '-lm', '-lpython3.8', '-lcrypt', '-lpthread', '-ldl', '-lutil', '-lm', '-lm']
@@ -864,7 +864,7 @@ yes
 --------------------------------------------------------------------------
 Asking python-config for pyext '--cflags --libs --ldflags' flags
 ['/usr/bin/python3-config', '--cflags', '--libs', '--ldflags']
-out: -I/usr/include/python3.8 -I/usr/include/python3.8  -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.8-AEtGER/python3.8-3.8.10=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O3 -Wall
+out: -I/usr/include/python3.8 -I/usr/include/python3.8  -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.8-WxaceB/python3.8-3.8.10=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O3 -Wall
  -lcrypt -lpthread -ldl  -lutil -lm -lm 
 -L/usr/lib/python3.8/config-3.8-x86_64-linux-gnu -L/usr/lib  -lcrypt -lpthread -ldl  -lutil -lm -lm 
 
@@ -899,7 +899,7 @@ int main(int argc, char **argv)
 <==
 [1/2] Compiling [32mbuild/.conf_check_66b724fcf417dea0fd77d12e509b70c6/test.cpp[0m
 
-['/usr/bin/g++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-std=c++11', '-fPIC', '-g', '-fdebug-prefix-map=/build/python3.8-AEtGER/python3.8-3.8.10=.', '-fstack-protector', '-g', '-fwrapv', '-O3', '-I/usr/include/python3.8', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3/dist-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3/dist-packages"', '-DHAVE_PYEMBED=1', '-DNDEBUG', '../test.cpp', '-c', '-o/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build/.conf_check_66b724fcf417dea0fd77d12e509b70c6/testbuild/test.cpp.1.o']
+['/usr/bin/g++', '-O0', '-ggdb', '-g3', '-Wall', '-Werror', '-std=c++11', '-fPIC', '-g', '-fdebug-prefix-map=/build/python3.8-WxaceB/python3.8-3.8.10=.', '-fstack-protector', '-g', '-fwrapv', '-O3', '-I/usr/include/python3.8', '-DNS3_BUILD_PROFILE_DEBUG', '-DNS3_ASSERT_ENABLE', '-DNS3_LOG_ENABLE', '-DPYTHONDIR="/usr/local/lib/python3/dist-packages"', '-DPYTHONARCHDIR="/usr/local/lib/python3/dist-packages"', '-DHAVE_PYEMBED=1', '-DNDEBUG', '../test.cpp', '-c', '-o/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build/.conf_check_66b724fcf417dea0fd77d12e509b70c6/testbuild/test.cpp.1.o']
 [2/2] Linking [33mbuild/.conf_check_66b724fcf417dea0fd77d12e509b70c6/testbuild/testprog.cpython-38-x86_64-linux-gnu.so[0m
 
 ['/usr/bin/g++', '-shared', 'test.cpp.1.o', '-o/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build/.conf_check_66b724fcf417dea0fd77d12e509b70c6/testbuild/testprog.cpython-38-x86_64-linux-gnu.so', '-Wl,-Bstatic', '-Wl,-Bdynamic', '-L/usr/lib/python3.8/config-3.8-x86_64-linux-gnu', '-L/usr/lib', '-lcrypt', '-lpthread', '-ldl', '-lutil', '-lm', '-lm', '-lcrypt', '-lpthread', '-ldl', '-lutil', '-lm', '-lm']

@@ -179,6 +179,9 @@ public:
 
   //sinkが把握しているcoreノード候補
   std::map<Ipv4Address, uint32_t> sink_core_candidate_reactive;
+  std::map<Ipv4Address, uint32_t> computing_resource_each;
+  std::map<Ipv4Address, uint32_t> computing_resource_each2;
+  std::map<Ipv4Address, uint32_t> computing_resource_each3;
 
 
 protected:
@@ -221,6 +224,17 @@ private:
 
   void RespondFloodingReturn ();
 
+  void CoreComputing ();
+
+  void DistributeComputing ();
+
+  void Computing (SimulationHeader header);
+
+  void StopComputing ();
+
+  void RespondComputing (Ipv4Address addr);
+
+  void FinishComputing();
 
   Ptr<Socket>     m_socket;       //!< Associated socket
   Ptr<Socket>     m_socket_local;       //!< Associated socket(local)
@@ -257,12 +271,21 @@ private:
   int send_count = 0;
 
   EventId         m_floodingEvent;     //!< Event id for flooding
-  Time flooding_interval = Seconds(0.001);
+  Time flooding_interval = Seconds(0.00001);
   std::map<Ipv4Address, uint32_t> m_resource_flooding;
   std::map<Ipv4Address, uint32_t> m_sort_resource_flooding;
   EventId         m_floodingreturnEvent;     //!< Event id for flooding
   int floodingreturn_flag = 0;
   Time floodingreturn_interval = Seconds(2.000);
+  std::vector<Ipv4Address> computing_node_address;
+  uint8_t computing_flag = 0;
+  uint8_t count_computing = 0;
+  uint32_t resource_tempo;
+  EventId         m_computingEvent;     //!< Event id for computing
+  Time computing_interval;
+  Ipv4Address core_tempo;
+  uint32_t computing_resource_sum = 0;
+
 
   /// Traced Callback: transmitted packets.
   TracedCallback<Ptr<const Packet> > m_txTrace;

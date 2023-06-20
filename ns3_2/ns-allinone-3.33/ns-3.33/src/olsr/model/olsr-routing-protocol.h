@@ -210,11 +210,12 @@ public:
 
   //自分で作成
   uint8_t m_resource; //計算機資源量を表す
+  uint32_t m_resource_num; //計算機資源量の具体的な数値を表す
   std::map<uint32_t, uint32_t> m_resource_sum;//周辺計算機資源量の総和を示す
   std::map<uint32_t, std::vector<uint8_t>> m_resource_table;
   std::map<uint32_t, std::vector<Ipv4Address>> resource_duplicated;
   std::map<Ptr<Node>, Address> m_resource_threshold;//周辺計算機資源量の総和が閾値を超えたノード集合のインスタンスとアドレス
-
+  std::vector<Ipv4Address> m_candidate_address;
 
   RandSimulation randsimulation;
 
@@ -315,8 +316,7 @@ private:
   Time m_midInterval;     //!< MID messages' emission interval.
   Time m_hnaInterval;     //!< HNA messages' emission interval.
   uint8_t m_willingness;  //!<  Willingness for forwarding packets on behalf of other nodes.
-  //自分で付け加えた
-  uint32_t m_resource_num; //計算機資源量の具体的な数値を表す
+
 
 
   int threshold_duplicate;//周辺計算機資源量の総和が閾値を超えたノード集合のノードIDがかぶっているかを判定
