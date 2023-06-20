@@ -516,6 +516,8 @@ void SimulationProposal::SendPacket ()
 
   Ptr<Node> node = GetNode();
   Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+  Ptr<olsr::RoutingProtocol> proto;
+
 
   Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();
   Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (ipv4_proto);
@@ -531,6 +533,7 @@ void SimulationProposal::SendPacket ()
   		  //NS_ASSERT (listOlsr);
   		  if (protocol)
   		  {
+  			  proto = protocol;
 //   	       	 if (protocol->GetThresholdFlag() == 1)
 //          	 {
 
@@ -581,11 +584,9 @@ void SimulationProposal::SendPacket ()
 
 
 //  							 protocol->threshold_flag = 0;
-
   			  }
-//  						 }
   		  }
-  	  	  }
+  	  }
   }
 
 
@@ -605,6 +606,7 @@ void SimulationProposal::SendPacket ()
       SimulationHeader::Proactive &proactive = header.GetProactive();
 
       proactive.SetResource(m_resource_sum);
+      proactive.SetAddr(proto->m_candidate_address);
       NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
       packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
       // Trace before adding header, for consistency with PacketSink
@@ -760,6 +762,7 @@ SimulationProposal::PacketReceived (const Ptr<Packet> &p, const Address &from,
 //    		  std::cout << iter->first << std::endl;
     	  }
     	  sink_core_candidate[senderIface] = proactive.GetResource();
+    	  sink_candidate_addr[senderIface] = proactive.GetAddr();
 //    	  std::cout<<senderIface<<std::endl;
 //    	  std::cout<<sink_core_candidate.size()<<std::endl;
 //    	  std::cout<<proactive.GetResource()<<std::endl;

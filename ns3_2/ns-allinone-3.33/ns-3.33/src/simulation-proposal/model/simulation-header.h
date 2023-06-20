@@ -46,6 +46,10 @@ public:
 	    FLOODING_MESSAGE   = 3,
 	    FLOODINGRETURN_MESSAGE   = 4,
 		NOTICE_MESSAGE = 5,
+		CORECOMPUTING_MESSAGE = 6,
+		COMPUTING_MESSAGE = 7,
+		NORMAL_MESSAGE = 8,
+		STOPCOMPUTING_MESSAGE = 9,
 	  };
 
 
@@ -143,17 +147,21 @@ public:
   struct Proactive
   {
 	uint32_t m_proactive_resource;
+	std::vector<Ipv4Address> core_candidate_surrounding;
 	void Serialize(Buffer::Iterator start) const;
 
 	uint32_t GetSerializedSize (void) const;
 
-	uint32_t Deserialize (Buffer::Iterator start);
+	uint32_t Deserialize (Buffer::Iterator start, uint32_t messageSize);
 
 
 	void SetResource (uint32_t resource_sum);
 
-
 	uint32_t GetResource (void) const;
+
+	void SetAddr (std::vector<Ipv4Address> addr);
+
+	std::vector<Ipv4Address> GetAddr (void) const;
   };
 
   struct Core
@@ -221,6 +229,60 @@ public:
 	  std::map<Ipv4Address, uint32_t> GetResource (void) const;
   };
 
+  struct CoreComputing
+  {
+	  std::map<Ipv4Address, uint32_t> core_computing_addr;
+	  void Serialize(Buffer::Iterator start) const;
+
+	  uint32_t GetSerializedSize (void) const;
+
+	  uint32_t Deserialize (Buffer::Iterator start, uint32_t messageSize);
+
+	  void SetAddr (std::map<Ipv4Address, uint32_t> addr);
+
+	  std::map<Ipv4Address, uint32_t> GetAddr (void) const;
+
+  };
+
+  struct Computing
+  {
+	  uint32_t computing_resource;
+	  void Serialize(Buffer::Iterator start) const;
+
+	  uint32_t GetSerializedSize (void) const;
+
+	  uint32_t Deserialize (Buffer::Iterator start);
+
+	  void SetComputingResource (uint32_t computing);
+
+	  uint32_t GetComputingResource (void) const;
+  };
+
+  struct Normal
+  {
+
+	void Serialize(Buffer::Iterator start) const;
+
+	uint32_t GetSerializedSize (void) const;
+
+	uint32_t Deserialize (Buffer::Iterator start);
+
+  };
+
+  struct StopComputing
+    {
+  	  std::map<Ipv4Address, uint32_t> core_computing_addr;
+  	  void Serialize(Buffer::Iterator start) const;
+
+  	  uint32_t GetSerializedSize (void) const;
+
+  	  uint32_t Deserialize (Buffer::Iterator start, uint32_t messageSize);
+
+  	  void SetAddr (std::map<Ipv4Address, uint32_t> addr);
+
+  	  std::map<Ipv4Address, uint32_t> GetAddr (void) const;
+
+    };
 
 
   struct
@@ -230,6 +292,10 @@ public:
       Flooding flooding;        //!< TC message (optional).
       FloodingReturn floodingreturn;      //!< HNA message (optional).
       Notice notice;//NOTICE message
+      CoreComputing corecomputing;//CoreComputing message
+      Computing computing;//Computing message
+      Normal normal;//normal message
+      StopComputing stopcomputing;//StopComputing message
     } m_message; //!< The actual message being carried.
 
   public:
@@ -315,6 +381,58 @@ public:
   	      return m_message.notice;
     }
 
+    CoreComputing& GetCoreComputing ()
+    {
+    	if (m_messageType == 0)
+    	{
+    		m_messageType = CORECOMPUTING_MESSAGE;
+    	}
+    	else
+    	{
+    		NS_ASSERT (m_messageType == CORECOMPUTING_MESSAGE);
+    	}
+    	return m_message.corecomputing;
+    }
+
+    Computing& GetComputing ()
+    {
+    	if (m_messageType == 0)
+    	{
+    		m_messageType = COMPUTING_MESSAGE;
+    	}
+    	else
+    	{
+    		NS_ASSERT (m_messageType == COMPUTING_MESSAGE);
+    	}
+    	return m_message.computing;
+    }
+
+    void GetNormal ()
+        {
+        	if (m_messageType == 0)
+        	{
+        		m_messageType = NORMAL_MESSAGE;
+        	}
+        	else
+        	{
+        		NS_ASSERT (m_messageType == NORMAL_MESSAGE);
+        	}
+    //    	return m_message.computing;
+        }
+
+    StopComputing& GetStopComputing ()
+    {
+    	if (m_messageType == 0)
+    	{
+    		m_messageType = STOPCOMPUTING_MESSAGE;
+    	}
+    	else
+    	{
+    		NS_ASSERT (m_messageType == STOPCOMPUTING_MESSAGE);
+    	}
+    	return m_message.stopcomputing;
+    }
+
     /**
      * Get the MID message.
      * \returns The MID message.
@@ -361,8 +479,29 @@ public:
         return m_message.notice;
       }
 
+    const CoreComputing& GetCoreComputing () const
+      {
+        NS_ASSERT (m_messageType == CORECOMPUTING_MESSAGE);
+        return m_message.corecomputing;
+      }
 
+    const Computing& GetComputing () const
+      {
+        NS_ASSERT (m_messageType == COMPUTING_MESSAGE);
+        return m_message.computing;
+      }
 
+    const void GetNormal () const
+    {
+    	NS_ASSERT (m_messageType == NORMAL_MESSAGE);
+    //        return m_message.computing;
+    }
+
+    const StopComputing& GetStopComputing () const
+      {
+        NS_ASSERT (m_messageType == STOPCOMPUTING_MESSAGE);
+        return m_message.stopcomputing;
+      }
 
 };
 

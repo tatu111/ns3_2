@@ -36,6 +36,8 @@ RandSimulation::rand_node (){
 
 	for(uint32_t i=0;i<node_number;i++){
 
+		if(i != 0)
+		{
 		std::mt19937 engine(i*2);//乱数の種の変更が必要
 
 		std::uniform_real_distribution<double> rnd(RANDOM_MIN, RANDOM_MAX);//メルセンヌ・ツイスタを利用
@@ -44,6 +46,12 @@ RandSimulation::rand_node (){
 		m_resource = m_resource_num/25000000;
 
 	 	randnode.insert(std::make_pair(i,m_resource_num));
+		}
+		else if(i == 0)
+		{
+			m_resource_num = 0;
+			m_resource = 0;
+		}
 	}
 
 }

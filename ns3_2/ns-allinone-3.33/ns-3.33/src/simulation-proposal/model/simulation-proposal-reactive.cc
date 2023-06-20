@@ -52,6 +52,8 @@
 #include "simulation-proposal-reactive.h"
 #include "ns3/simulation-header.h"
 #include "ns3/seq-ts-size-header.h"
+
+#define task 500000000
 //
 
 namespace ns3 {
@@ -85,11 +87,11 @@ SimulationProposalReactive::GetTypeId (void)
                    MakeAddressAccessor (&SimulationProposalReactive::m_local),
                    MakeAddressChecker ())
     .AddAttribute ("OnTime", "A RandomVariableStream used to pick the duration of the 'On' state.",
-                   StringValue ("ns3::ConstantRandomVariable[Constant=1.0]"),
+                   StringValue ("ns3::ConstantRandomVariable[Constant=6.0]"),
                    MakePointerAccessor (&SimulationProposalReactive::m_onTime),
                    MakePointerChecker <RandomVariableStream>())
     .AddAttribute ("OffTime", "A RandomVariableStream used to pick the duration of the 'Off' state.",
-                   StringValue ("ns3::ConstantRandomVariable[Constant=1.0]"),
+                   StringValue ("ns3::ConstantRandomVariable[Constant=3.0]"),
                    MakePointerAccessor (&SimulationProposalReactive::m_offTime),
                    MakePointerChecker <RandomVariableStream>())
     .AddAttribute ("MaxBytes",
@@ -489,19 +491,6 @@ void SimulationProposalReactive::StartApplication () // Called at time specified
 
 
 
-  //タスクの要求の発生
-//  std::random_device seed_gen;
-//  std::default_random_engine engine(seed_gen());
-//
-//  std::exponential_distribution<> dist(1.0);
-//
-//  for (int n = 0; n < 1000; n++) {
-//      // 指数分布で乱数を生成する
-//     Time task_interval = Seconds(dist(engine));
-//
-//   }
-
-
 
 }
 
@@ -563,9 +552,9 @@ void SimulationProposalReactive::StartSending ()
 {
   NS_LOG_FUNCTION (this);
   m_lastStartTime = Simulator::Now ();
-  ScheduleStopEvent ();
-  ScheduleNextTx ();  // Schedule the send packet event
 
+  ScheduleNextTx ();  // Schedule the send packet event
+  ScheduleStopEvent ();
 //  ScheduleStopEvent ();
 }
 
@@ -618,9 +607,24 @@ void SimulationProposalReactive::ScheduleStartEvent ()
 {  // Schedules the event to start sending data (switch to the "On" state)
   NS_LOG_FUNCTION (this);
 
-  Time offInterval = Seconds (m_offTime->GetValue ());
-  NS_LOG_LOGIC ("start at " << offInterval.As (Time::S));
-  m_startStopEvent = Simulator::Schedule (offInterval, &SimulationProposalReactive::StartSending, this);
+  send_count = 0;
+
+
+  //タスクの要求の発生
+  std::random_device seed_gen;
+  std::default_random_engine engine(seed_gen());
+
+  std::exponential_distribution<> dist(0.1);
+
+
+  // 指数分布で乱数を生成する
+  Time task_interval = Seconds(dist(engine));
+  std::cout<<task_interval<<std::endl;
+
+
+//  Time offInterval = Seconds (m_offTime->GetValue ());
+//  NS_LOG_LOGIC ("start at " << offInterval.As (Time::S));
+  m_startStopEvent = Simulator::Schedule (task_interval, &SimulationProposalReactive::StartSending, this);
 }
 
 
@@ -985,24 +989,161 @@ SimulationProposalReactive::PacketReceived (const Ptr<Packet> &p, const Address 
 //	  }
 
 	  uint32_t sum_computing = 0;
-	  int computing_node = 0;
+	  computing_resource_sum = 0;
 	  for(int i = 0; i<int(resource_tempo.size())-1; i++)
 	  {
 		  if(sum_computing < 50)
 		  {
 			  sum_computing += resource_tempo[i];
+			  for(std::map<Ipv4Address, uint32_t>::const_iterator iter = m_resource_flooding.begin ();
+					  iter != m_resource_flooding.end (); iter++)
+			  {
+				if(iter->second == resource_tempo[i])
+				{
+					computing_node_address.push_back(iter->first);
+//					computing_resource_sum += iter->second;
+				}
+			  }
 		  }
 		  else if(sum_computing >= 50)
 		  {
-			  std::cout<<i<<std::endl;
-			  computing_node = i;
 			  break;
 		  }
 	  }
 
+	  sum_computing = 0;
+	  computing_resource_each.clear();
+	  for(int i = 0; i<int(resource_tempo.size())-1; i++)
+	  {
+		  if(sum_computing < 50)
+		  {
+			  sum_computing += resource_tempo[i];
+			  for(std::map<Ipv4Address, uint32_t>::const_iterator iter = m_resource_flooding.begin ();
+	  					  iter != m_resource_flooding.end (); iter++)
+			  {
+				  if(iter->second == resource_tempo[i])
+				  {
+					  computing_resource_each.insert(std::make_pair(iter->first, iter->second));
+				  }
+	  		  }
+		  }
+		  else if(sum_computing >= 50)
+		  {
+			  break;
+		  }
+	  }
+	  Ptr<Application> app;
+	  Ptr<SimulationProposal> propo;
+	  for (uint32_t i = 0; i < node->GetNApplications(); i++)
+	  {
+		  app = node->GetApplication(i);
+		  propo = DynamicCast<SimulationProposal> (app);
+
+		  if (propo)
+		  {
+			  for(std::map<Ipv4Address, std::vector<Ipv4Address>>::const_iterator i = propo->sink_candidate_addr.begin ();
+  					  i != propo->sink_candidate_addr.end (); i++)
+			  {
+				  for(std::vector<Ipv4Address>::const_iterator i2 =i->second.begin();
+						  i2 != i->second.end(); i2++)
+				  {
+					  for(std::vector<Ipv4Address>::const_iterator i3 = computing_node_address.begin();
+							  i3 != computing_node_address.end(); i3++)
+					  {
+						  if(*i2 == *i3)
+						  {
+							  propo->sink_core_candidate[i->first] -= m_resource_flooding[*i3];
+						  }
+					  }
+				  }
+			  }
+		  }
+	  }
+
+
+//	  std::cout<<computing_resource_each.size()<<std::endl;
+
+
+
+//	  m_floodingreturnEvent = Simulator::Schedule (floodingreturn_interval, &SimulationProposalReactive::CoreComputing, this);
+	  CoreComputing();
 
 
   }
+
+  if(header.GetMessageType() == SimulationHeader::CORECOMPUTING_MESSAGE)
+  {
+	  std::cout<<"corecomputing"<<std::endl;
+	  SimulationHeader::CoreComputing &corecomputing = header.GetCoreComputing();
+	  std::cout<<corecomputing.GetAddr().size()<<std::endl;
+
+	  computing_resource_each = corecomputing.GetAddr();
+	  DistributeComputing();
+  }
+
+  if(header.GetMessageType() == SimulationHeader::COMPUTING_MESSAGE)
+  {
+  	  std::cout<<"computing"<<std::endl;
+//  	  SimulationHeader::Computing &computing = header.GetComputing();
+
+  	  //計算機資源の増減を表現
+  	  core_tempo = header.GetDestinationAddress();
+  	  Computing(header);
+
+
+//  	  std::cout<<header.GetDestinationAddress()<<std::endl;
+
+
+  }
+  if(header.GetMessageType() == SimulationHeader::NORMAL_MESSAGE)
+  {
+	  std::cout<<"normal"<<std::endl;
+	  count_computing += 1;
+	  std::cout<<computing_resource_each.size()<<std::endl;
+	  if(count_computing == computing_resource_each.size())
+	  {
+		  std::cout<<"normal"<<std::endl;
+		  FinishComputing();
+	  }
+  }
+
+
+
+	if(header.GetMessageType() == SimulationHeader::STOPCOMPUTING_MESSAGE)
+	{
+		std::cout<<"stop"<<std::endl;
+		SimulationHeader::StopComputing &stopcomputing = header.GetStopComputing();
+		computing_resource_each3 = stopcomputing.GetAddr();
+		Ptr<Node> node = GetNode();
+		Ptr<Application> app;
+		Ptr<SimulationProposal> propo;
+		for (uint32_t i = 0; i < node->GetNApplications(); i++)
+		{
+			app = node->GetApplication(i);
+			propo = DynamicCast<SimulationProposal> (app);
+
+			if (propo)
+			{
+				for(std::map<Ipv4Address, std::vector<Ipv4Address>>::const_iterator i = propo->sink_candidate_addr.begin ();
+						i != propo->sink_candidate_addr.end (); i++)
+				{
+					for(std::vector<Ipv4Address>::const_iterator i2 =i->second.begin();
+							i2 != i->second.end(); i2++)
+					{
+						for(std::map<Ipv4Address, uint32_t>::const_iterator i3 = computing_resource_each3.begin();
+								i3 != computing_resource_each3.end(); i3++)
+						{
+							if(*i2 == i3->first)
+							{
+								propo->sink_core_candidate[i->first] += computing_resource_each3[i3->first];
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 
 //      m_rxTraceWithSeqTsSize2 (complete, from, localAddress, header);
 
@@ -1239,6 +1380,304 @@ void SimulationProposalReactive::RespondFloodingReturn ()
 		}
 	}
 }
+
+void SimulationProposalReactive::CoreComputing()
+{
+	//自分で作成
+	Ptr<Node> node = GetNode();
+	Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+
+	Ptr<Application> app;
+	Ptr<SimulationProposal> propo;
+
+	for (uint32_t i = 0; i < node->GetNApplications(); i++)
+	{
+		app = node->GetApplication(i);
+		propo = DynamicCast<SimulationProposal> (app);
+		         //NS_ASSERT (listOlsr);
+
+		if (propo)
+		{
+			uint32_t max_core_candidate = 0;
+
+			for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
+					i != sink_core_candidate_reactive.end();i++)
+			{
+				if(max_core_candidate < i->second)
+				{
+					max_core_candidate = i->second;
+				}
+			}
+
+			for(std::map<Ipv4Address, uint32_t>::const_iterator i = sink_core_candidate_reactive.begin();
+					i != sink_core_candidate_reactive.end();i++)
+			{
+				if((max_core_candidate == i->second))
+				{
+//					  Address address = i->first.ConvertTo();
+					InetSocketAddress address = InetSocketAddress (i->first, 49153);
+
+					m_socket->Connect (address);
+
+					Ptr<Packet> packet;
+					Address from, to;
+//					std::cout<<m_socket->Connect (address)<<std::endl;
+
+					m_socket->GetSockName (from);
+					m_socket->GetPeerName (to);
+
+					SimulationHeader header;
+					header.SetSeq (m_seq++);
+					header.SetSize (m_pktSize);
+					SimulationHeader::CoreComputing &corecomputing = header.GetCoreComputing();
+
+
+					corecomputing.SetAddr(computing_resource_each);
+
+					NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
+					packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
+					// Trace before adding header, for consistency with PacketSink
+					m_txTraceWithSeqTsSize2 (packet, from, to, header);
+					packet->AddHeader (header);
+
+					m_socket->SendTo(packet, 0, address);
+
+//					  break;
+
+
+				}
+			}
+		}
+	}
+}
+
+
+void SimulationProposalReactive::DistributeComputing()
+{
+	//自分で作成
+	Ptr<Node> node = GetNode();
+	Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+
+	Ptr<Application> app;
+	Ptr<SimulationProposal> propo;
+
+	for (uint32_t i = 0; i < node->GetNApplications(); i++)
+	{
+		app = node->GetApplication(i);
+		propo = DynamicCast<SimulationProposal> (app);
+		         //NS_ASSERT (listOlsr);
+
+		if (propo)
+		{
+			computing_resource_each2 = computing_resource_each;
+			for(std::map<Ipv4Address, uint32_t>::const_iterator i = computing_resource_each.begin();
+								i != computing_resource_each.end();i++)
+			{
+				computing_resource_sum += i->second;
+			}
+
+			for(std::map<Ipv4Address, uint32_t>::const_iterator i = computing_resource_each.begin();
+											i != computing_resource_each.end();i++)
+			{
+				computing_resource_each[i->first] = computing_resource_each[i->first]/computing_resource_sum;
+			}
+			for(std::map<Ipv4Address, uint32_t>::const_iterator i = computing_resource_each.begin();
+					i != computing_resource_each.end();i++)
+			{
+//					  Address address = i->first.ConvertTo();
+				InetSocketAddress address = InetSocketAddress (i->first, 49153);
+
+				m_socket->Connect (address);
+
+				Ipv4InterfaceAddress iface = ipv4->GetAddress (1, 0);
+				Ipv4Address sourceaddress = iface.GetLocal();
+
+				Ptr<Packet> packet;
+				Address from, to;
+//					std::cout<<m_socket->Connect (address)<<std::endl;
+
+				m_socket->GetSockName (from);
+				m_socket->GetPeerName (to);
+
+				SimulationHeader header;
+				header.SetSeq (m_seq++);
+				header.SetSize (m_pktSize);
+				header.SetDestinationAddress(sourceaddress);
+				SimulationHeader::Computing &computing = header.GetComputing();
+				computing.SetComputingResource(i->second);
+
+				NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
+				packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
+				// Trace before adding header, for consistency with PacketSink
+				m_txTraceWithSeqTsSize2 (packet, from, to, header);
+				packet->AddHeader (header);
+
+				m_socket->SendTo(packet, 0, address);
+
+			}
+		}
+	}
+}
+
+
+void SimulationProposalReactive::Computing (SimulationHeader header)
+{
+	//自分で作成
+	Ptr<Node> node = GetNode();
+	Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+
+	SimulationHeader::Computing &computing = header.GetComputing();
+	uint32_t calcu = computing.GetComputingResource();
+	Ptr<Application> app;
+	Ptr<SimulationProposal> propo;
+
+	Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();
+	Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (ipv4_proto);
+	if (list)
+	{
+		int16_t priority;
+		Ptr<Ipv4RoutingProtocol> listProto;
+		Ptr<olsr::RoutingProtocol> protocol;
+		for (uint32_t i = 0; i < list->GetNRoutingProtocols (); i++)
+		{
+			listProto = list->GetRoutingProtocol (i, priority);
+			protocol = DynamicCast<olsr::RoutingProtocol> (listProto);
+			if (protocol)
+			{
+				std::cout<<protocol->m_resource_num<<std::endl;
+				computing_interval = Seconds((task * calcu) / protocol->m_resource_num);
+				resource_tempo = protocol->m_resource_num;
+				protocol->m_resource_num = 0;
+				m_computingEvent = Simulator::Schedule (computing_interval, &SimulationProposalReactive::StopComputing, this);
+			}
+
+		}
+	}
+}
+
+void SimulationProposalReactive::StopComputing ()
+{
+	//自分で作成
+	Ptr<Node> node = GetNode();
+	Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+
+	Ptr<Application> app;
+	Ptr<SimulationProposal> propo;
+
+	Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();
+	Ptr<Ipv4ListRouting> list = DynamicCast<Ipv4ListRouting> (ipv4_proto);
+	if (list)
+	{
+		int16_t priority;
+		Ptr<Ipv4RoutingProtocol> listProto;
+		Ptr<olsr::RoutingProtocol> protocol;
+		for (uint32_t i = 0; i < list->GetNRoutingProtocols (); i++)
+		{
+			listProto = list->GetRoutingProtocol (i, priority);
+			protocol = DynamicCast<olsr::RoutingProtocol> (listProto);
+			if (protocol)
+			{
+				std::cout<<protocol->m_resource_num<<std::endl;
+				protocol->m_resource_num = resource_tempo;
+			}
+		}
+	}
+	RespondComputing(core_tempo);
+}
+
+void SimulationProposalReactive::RespondComputing (Ipv4Address addr)
+{
+	//自分で作成
+	Ptr<Node> node = GetNode();
+	Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+
+	Ptr<Application> app;
+	Ptr<SimulationProposal> propo;
+
+	for (uint32_t i = 0; i < node->GetNApplications(); i++)
+	{
+		app = node->GetApplication(i);
+		propo = DynamicCast<SimulationProposal> (app);
+			         //NS_ASSERT (listOlsr);
+
+		if (propo)
+		{
+			InetSocketAddress address = InetSocketAddress (addr, 49153);
+
+			Ptr<Packet> packet;
+			Address from, to;
+			m_socket->GetSockName (from);
+			m_socket->GetPeerName (to);
+
+			m_socket->Connect (address);
+			SimulationHeader header;
+			header.SetSeq (m_seq++);
+			header.SetSize (m_pktSize);
+			header.GetNormal();
+
+			NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
+			packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
+	  // Trace before adding header, for consistency with PacketSink
+//  			  m_txTraceWithSeqTsSize2 (packet, from, to, header);
+
+			packet->AddHeader (header);
+
+			m_socket->SendTo(packet, 0, address);
+		}
+	}
+
+}
+
+
+
+void SimulationProposalReactive::FinishComputing()
+{
+	//自分で作成
+	Ptr<Node> node = GetNode();
+	Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
+
+	Ptr<Application> app;
+	Ptr<SimulationProposal> propo;
+
+	for (uint32_t i = 0; i < node->GetNApplications(); i++)
+	{
+		app = node->GetApplication(i);
+		propo = DynamicCast<SimulationProposal> (app);
+		         //NS_ASSERT (listOlsr);
+
+		if (propo)
+		{
+			InetSocketAddress address = InetSocketAddress ("10.1.1.1", 49153);
+
+			m_socket->Connect (address);
+
+			Ptr<Packet> packet;
+			Address from, to;
+//					std::cout<<m_socket->Connect (address)<<std::endl;
+
+			m_socket->GetSockName (from);
+			m_socket->GetPeerName (to);
+
+			std::cout<<computing_resource_each.size()<<std::endl;
+			SimulationHeader header;
+			header.SetSeq (m_seq++);
+			header.SetSize (m_pktSize);
+			SimulationHeader::StopComputing &stopcomputing = header.GetStopComputing();
+//
+////					std::cout<<computing_resource_each.size()<<std::endl;
+			stopcomputing.SetAddr(computing_resource_each2);
+			NS_ABORT_IF (m_pktSize < header.GetSerializedSize ());
+			packet = Create<Packet> (m_pktSize - header.GetSerializedSize ());
+			// Trace before adding header, for consistency with PacketSink
+			m_txTraceWithSeqTsSize2 (packet, from, to, header);
+			packet->AddHeader (header);
+
+			m_socket->SendTo(packet, 0, address);
+
+		}
+	}
+}
+
 
 void SimulationProposalReactive::HandlePeerClose (Ptr<Socket> socket)
 {

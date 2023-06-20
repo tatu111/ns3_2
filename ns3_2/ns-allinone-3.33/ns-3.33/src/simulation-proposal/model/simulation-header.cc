@@ -95,6 +95,18 @@ SimulationHeader::GetSerializedSize (void) const
 	    case NOTICE_MESSAGE:
 	      size += m_message.notice.GetSerializedSize();
 	      break;
+	    case CORECOMPUTING_MESSAGE:
+	    	size += m_message.corecomputing.GetSerializedSize();
+	    	break;
+	    case COMPUTING_MESSAGE:
+	    	size += m_message.computing.GetSerializedSize();
+	    	break;
+	    case NORMAL_MESSAGE:
+	    	size += m_message.normal.GetSerializedSize();
+	    	break;
+	    case STOPCOMPUTING_MESSAGE:
+	    	size += m_message.stopcomputing.GetSerializedSize();
+	    	break;
 	    default:
 	      NS_ASSERT (false);
 	    }
@@ -129,6 +141,18 @@ SimulationHeader::Serialize (Buffer::Iterator start) const
       case NOTICE_MESSAGE:
         m_message.notice.Serialize(i);
         break;
+      case CORECOMPUTING_MESSAGE:
+    	  m_message.corecomputing.Serialize(i);
+    	  break;
+      case COMPUTING_MESSAGE:
+    	  m_message.computing.Serialize(i);
+    	  break;
+      case NORMAL_MESSAGE:
+     	  m_message.normal.Serialize(i);
+     	  break;
+      case STOPCOMPUTING_MESSAGE:
+    	  m_message.stopcomputing.Serialize(i);
+    	  break;
       default:
         NS_ASSERT (false);
       }
@@ -151,7 +175,7 @@ SimulationHeader::Deserialize (Buffer::Iterator start)
   switch (m_messageType)
   	    {
   	    case PROACTIVE_MESSAGE:
-  	      size += m_message.proactive.Deserialize (i);
+  	      size += m_message.proactive.Deserialize (i, m_size - 16);
   	      break;
   	    case CORE_MESSAGE:
   	      size += m_message.core.Deserialize (i);
@@ -165,6 +189,18 @@ SimulationHeader::Deserialize (Buffer::Iterator start)
   	    case NOTICE_MESSAGE:
   	      size += m_message.notice.Deserialize (i, m_size - 16);
   	      break;
+  	    case CORECOMPUTING_MESSAGE:
+  	      size += m_message.corecomputing.Deserialize (i, m_size - 16);
+  	      break;
+  	    case COMPUTING_MESSAGE:
+  	      size += m_message.computing.Deserialize (i);
+  	      break;
+  	    case NORMAL_MESSAGE:
+  	    	size += m_message.normal.Deserialize (i);
+  	    	break;
+  	    case STOPCOMPUTING_MESSAGE:
+  	    	size += m_message.stopcomputing.Deserialize (i, m_size -16);
+  	    	break;
   	    default:
   	      NS_ASSERT (false);
   	    }
@@ -179,24 +215,40 @@ SimulationHeader::Proactive::Serialize(Buffer::Iterator start) const
 	NS_LOG_FUNCTION (this << &start);
 	Buffer::Iterator i = start;
 	i.WriteHtonU32(m_proactive_resource);
-
+	i.WriteHtonU16(6 + core_candidate_surrounding.size() * 4);
+	for(std::vector<Ipv4Address>::const_iterator iter = core_candidate_surrounding.begin ();
+			iter != core_candidate_surrounding.end (); iter++)
+	{
+		i.WriteU32(iter->Get());
+	}
 }
 
 uint32_t
 SimulationHeader::Proactive::GetSerializedSize (void) const
 {
-	uint32_t size = 8;
+	uint32_t size = 6;
+	size += 4 * this->core_candidate_surrounding.size();
 	return size;
 }
 
 uint32_t
-SimulationHeader::Proactive::Deserialize(Buffer::Iterator start)
+SimulationHeader::Proactive::Deserialize(Buffer::Iterator start, uint32_t messageSize)
 {
 
 	Buffer::Iterator i = start;
 	m_proactive_resource = i.ReadNtohU32();
+	uint16_t size = messageSize;
+	uint16_t lmSize = i.ReadNtohU16 ();
+	for (int n = (lmSize - 6) / 4; n; --n)
+	{
+		Ipv4Address addr = Ipv4Address (i.ReadU32());
+		core_candidate_surrounding.push_back(addr);
+	}
+	size -= lmSize;
+	//
+	//	}
 
-	return GetSerializedSize ();
+	return messageSize;
 }
 
 void
@@ -209,6 +261,19 @@ uint32_t
 SimulationHeader::Proactive::GetResource (void) const
 {
   return m_proactive_resource;
+}
+
+
+void
+SimulationHeader::Proactive::SetAddr (std::vector<Ipv4Address> addr)
+{
+	core_candidate_surrounding = addr;
+}
+
+std::vector<Ipv4Address>
+SimulationHeader::Proactive::GetAddr (void) const
+{
+	return core_candidate_surrounding;
 }
 
 uint32_t
@@ -376,6 +441,182 @@ SimulationHeader::Notice::GetResource (void) const
 {
   return m_resource_floodingreturn;
 }
+
+
+
+uint32_t
+SimulationHeader::CoreComputing::GetSerializedSize (void) const
+{
+	uint32_t size = 2;
+
+	size += 8 * this->core_computing_addr.size();
+	return size;
+}
+
+void
+SimulationHeader::CoreComputing::Serialize(Buffer::Iterator start) const
+{
+	NS_LOG_FUNCTION (this << &start);
+	Buffer::Iterator i = start;
+	i.WriteHtonU16(2 + core_computing_addr.size() * 8);
+	for(std::map<Ipv4Address, uint32_t>::const_iterator iter = core_computing_addr.begin ();
+			iter != core_computing_addr.end (); iter++)
+	{
+		i.WriteU32(iter->first.Get());
+		i.WriteU32(iter->second);
+	}
+}
+
+uint32_t
+SimulationHeader::CoreComputing::Deserialize(Buffer::Iterator start, uint32_t messageSize)
+{
+
+	Buffer::Iterator i = start;
+	uint16_t size = messageSize;
+	uint16_t lmSize = i.ReadNtohU16 ();
+	for (int n = (lmSize - 2) / 8; n; --n)
+	{
+		Ipv4Address addr = Ipv4Address (i.ReadU32());
+		uint32_t resource = i.ReadU32();
+		core_computing_addr.insert (std::make_pair(addr, resource));
+	}
+	size -= lmSize;
+//
+//	}
+
+	return messageSize;
+}
+
+void
+SimulationHeader::CoreComputing::SetAddr (std::map<Ipv4Address, uint32_t> addr)
+{
+	core_computing_addr = addr;
+}
+
+std::map<Ipv4Address, uint32_t>
+SimulationHeader::CoreComputing::GetAddr (void) const
+{
+  return core_computing_addr;
+}
+
+uint32_t
+SimulationHeader::Computing::GetSerializedSize (void) const
+{
+	uint32_t size = 4;
+	return size;
+}
+
+void
+SimulationHeader::Computing::Serialize(Buffer::Iterator start) const
+{
+	NS_LOG_FUNCTION (this << &start);
+	Buffer::Iterator i = start;
+	i.WriteHtonU32(computing_resource);
+
+}
+
+uint32_t
+SimulationHeader::Computing::Deserialize(Buffer::Iterator start)
+{
+
+	Buffer::Iterator i = start;
+	computing_resource = i.ReadNtohU32();
+
+	return GetSerializedSize ();
+}
+
+
+void
+SimulationHeader::Computing::SetComputingResource (uint32_t computing)
+{
+	computing_resource = computing;
+}
+
+uint32_t
+SimulationHeader::Computing::GetComputingResource (void) const
+{
+	return computing_resource;
+}
+
+
+
+uint32_t
+SimulationHeader::Normal::GetSerializedSize (void) const
+{
+	uint32_t size = 4;
+	return size;
+}
+
+void
+SimulationHeader::Normal::Serialize(Buffer::Iterator start) const
+{
+	NS_LOG_FUNCTION (this << &start);
+//	Buffer::Iterator i = start;
+
+}
+
+uint32_t
+SimulationHeader::Normal::Deserialize(Buffer::Iterator start)
+{
+
+//	Buffer::Iterator i = start;
+
+	return GetSerializedSize ();
+}
+void
+SimulationHeader::StopComputing::SetAddr (std::map<Ipv4Address, uint32_t> addr)
+{
+	core_computing_addr = addr;
+}
+
+std::map<Ipv4Address, uint32_t>
+SimulationHeader::StopComputing::GetAddr (void) const
+{
+  return core_computing_addr;
+}
+
+uint32_t
+SimulationHeader::StopComputing::GetSerializedSize (void) const
+{
+	uint32_t size = 2;
+	size += 8 * this->core_computing_addr.size();
+	return size;
+}
+
+void
+SimulationHeader::StopComputing::Serialize(Buffer::Iterator start) const
+{
+	NS_LOG_FUNCTION (this << &start);
+	Buffer::Iterator i = start;
+	i.WriteHtonU16(2 + core_computing_addr.size() * 8);
+	for(std::map<Ipv4Address, uint32_t>::const_iterator iter = core_computing_addr.begin ();
+			iter != core_computing_addr.end (); iter++)
+	{
+		i.WriteU32(iter->first.Get());
+		i.WriteU32(iter->second);
+	}
+}
+
+uint32_t
+SimulationHeader::StopComputing::Deserialize(Buffer::Iterator start, uint32_t messageSize)
+{
+
+	Buffer::Iterator i = start;
+	uint16_t size = messageSize;
+	uint16_t lmSize = i.ReadNtohU16 ();
+	for (int n = (lmSize - 2) / 8; n; --n)
+	{
+		Ipv4Address addr = Ipv4Address (i.ReadU32());
+		uint32_t resource = i.ReadU32();
+		core_computing_addr.insert (std::make_pair(addr, resource));
+	}
+	size -= lmSize;
+//
+//	}
+
+	return messageSize;
+}
+
 
 
 } // namespace ns3

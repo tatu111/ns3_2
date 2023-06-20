@@ -209,19 +209,19 @@ RoutingProtocol::GetTypeId (void)
     .SetGroupName ("Olsr")
     .AddConstructor<RoutingProtocol> ()
     .AddAttribute ("HelloInterval", "HELLO messages emission interval.",
-                   TimeValue (Seconds (12)),
+                   TimeValue (Seconds (20)),
                    MakeTimeAccessor (&RoutingProtocol::m_helloInterval),
                    MakeTimeChecker ())
     .AddAttribute ("TcInterval", "TC messages emission interval.",
-                   TimeValue (Seconds (25)),
+                   TimeValue (Seconds (30)),
                    MakeTimeAccessor (&RoutingProtocol::m_tcInterval),
                    MakeTimeChecker ())
     .AddAttribute ("MidInterval", "MID messages emission interval.  Normally it is equal to TcInterval.",
-                   TimeValue (Seconds (25)),
+                   TimeValue (Seconds (30)),
                    MakeTimeAccessor (&RoutingProtocol::m_midInterval),
                    MakeTimeChecker ())
     .AddAttribute ("HnaInterval", "HNA messages emission interval.  Normally it is equal to TcInterval.",
-                   TimeValue (Seconds (25)),
+                   TimeValue (Seconds (30)),
                    MakeTimeAccessor (&RoutingProtocol::m_hnaInterval),
                    MakeTimeChecker ())
     .AddAttribute ("Willingness", "Willingness of a node to carry and forward traffic for other nodes.",
@@ -1439,6 +1439,7 @@ RoutingProtocol::ProcessHello (const olsr::MessageHeader &msg,
   //自分で作成
   Resource_Store(senderIface, hello);
 
+
   //
 
   LinkSensing (msg, hello, receiverIface, senderIface);
@@ -2158,6 +2159,7 @@ RoutingProtocol::Resource_Store (const Ipv4Address &senderIface,
 	int dupli = 0;
 	//int dupli_len = resource_duplicated.size();
 
+	m_candidate_address.push_back(senderIface);
 	std::vector<Ipv4Address> provisional = resource_duplicated[m_ipv4->GetObject<Node> ()->GetId ()];
 	int len = provisional.size();
 	for(int i =0; i != len; i++){
