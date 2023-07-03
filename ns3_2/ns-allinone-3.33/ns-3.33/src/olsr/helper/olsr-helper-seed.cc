@@ -17,7 +17,7 @@
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
-#include "olsr-helper.h"
+#include "olsr-helper-seed.h"
 #include "ns3/olsr-routing-protocol.h"
 #include "ns3/node-list.h"
 #include "ns3/names.h"
@@ -27,30 +27,31 @@
 
 namespace ns3 {
 
-OlsrHelper::OlsrHelper ()
+OlsrHelperSeed::OlsrHelperSeed (double seed)
 {
   m_agentFactory.SetTypeId ("ns3::olsr::RoutingProtocol");
+  m_agentFactory.Set ("randomseed", DoubleValue(seed));
 }
 
-OlsrHelper::OlsrHelper (const OlsrHelper &o)
+OlsrHelperSeed::OlsrHelperSeed (const OlsrHelperSeed &o)
   : m_agentFactory (o.m_agentFactory)
 {
   m_interfaceExclusions = o.m_interfaceExclusions;
-  std::list<std::pair<const OlsrHelper *, int16_t> >::const_iterator i;
+  std::list<std::pair<const OlsrHelperSeed *, int16_t> >::const_iterator i;
   for (i = o.m_list.begin (); i != o.m_list.end (); ++i)
    {
-     m_list.push_back (std::make_pair (const_cast<const OlsrHelper *> (i->first->Copy ()), i->second));
+     m_list.push_back (std::make_pair (const_cast<const OlsrHelperSeed *> (i->first->Copy ()), i->second));
    }
 }
 
-OlsrHelper*
-OlsrHelper::Copy (void) const
+OlsrHelperSeed*
+OlsrHelperSeed::Copy (void) const
 {
-  return new OlsrHelper (*this);
+  return new OlsrHelperSeed (*this);
 }
 
 void
-OlsrHelper::ExcludeInterface (Ptr<Node> node, uint32_t interface)
+OlsrHelperSeed::ExcludeInterface (Ptr<Node> node, uint32_t interface)
 {
   std::map< Ptr<Node>, std::set<uint32_t> >::iterator it = m_interfaceExclusions.find (node);
 
@@ -68,7 +69,7 @@ OlsrHelper::ExcludeInterface (Ptr<Node> node, uint32_t interface)
 }
 
 Ptr<Ipv4RoutingProtocol>
-OlsrHelper::Create (Ptr<Node> node) const
+OlsrHelperSeed::Create (Ptr<Node> node) const
 {
   Ptr<olsr::RoutingProtocol> agent = m_agentFactory.Create<olsr::RoutingProtocol> ();
 
@@ -84,13 +85,13 @@ OlsrHelper::Create (Ptr<Node> node) const
 }
 
 void
-OlsrHelper::Set (std::string name, const AttributeValue &value)
+OlsrHelperSeed::Set (std::string name, const AttributeValue &value)
 {
   m_agentFactory.Set (name, value);
 }
 
 int64_t
-OlsrHelper::AssignStreams (NodeContainer c, int64_t stream)
+OlsrHelperSeed::AssignStreams (NodeContainer c, int64_t stream)
 {
   int64_t currentStream = stream;
   Ptr<Node> node;
@@ -134,18 +135,18 @@ OlsrHelper::AssignStreams (NodeContainer c, int64_t stream)
 
 //自分で作成
 void
-OlsrHelper::PrintResourceAll (Time printInterval, Ptr<OutputStreamWrapper> stream)
+OlsrHelperSeed::PrintResourceAll (Time printInterval, Ptr<OutputStreamWrapper> stream)
 {
   for (uint32_t i = 0; i < NodeList::GetNNodes (); i++)
     {
       Ptr<Node> node = NodeList::GetNode (i);
-      Simulator::Schedule (printInterval, &OlsrHelper::PrintResource, printInterval, node, stream);
+      Simulator::Schedule (printInterval, &OlsrHelperSeed::PrintResource, printInterval, node, stream);
     }
 }
 
 //自分で作成した
 void
-OlsrHelper::PrintResource (Time printInterval, Ptr<Node> node, Ptr<OutputStreamWrapper> stream)
+OlsrHelperSeed::PrintResource (Time printInterval, Ptr<Node> node, Ptr<OutputStreamWrapper> stream)
 {
   Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
   Ptr<Ipv4RoutingProtocol> ipv4_proto = ipv4->GetRoutingProtocol ();

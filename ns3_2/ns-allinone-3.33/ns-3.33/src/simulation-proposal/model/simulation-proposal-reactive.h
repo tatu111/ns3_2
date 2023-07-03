@@ -281,10 +281,14 @@ private:
   uint8_t computing_flag = 0;
   uint8_t count_computing = 0;
   uint32_t resource_tempo;
+  uint8_t resource_tempo2;
   EventId         m_computingEvent;     //!< Event id for computing
   Time computing_interval;
   Ipv4Address core_tempo;
   uint32_t computing_resource_sum = 0;
+  std::vector<Time> computing_start;
+  std::vector<Time> computing_stop;
+  std::vector<Time> computing_time;
 
 
   /// Traced Callback: transmitted packets.

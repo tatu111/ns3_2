@@ -80,7 +80,7 @@
 #include "ns3/ipv4-address-helper.h"
 #include "ns3/yans-wifi-channel.h"
 #include "ns3/mobility-model.h"
-#include "ns3/olsr-helper.h"
+#include "ns3/olsr-helper-seed.h"
 #include "ns3/ipv4-static-routing-helper.h"
 #include "ns3/ipv4-list-routing-helper.h"
 #include "ns3/internet-stack-helper.h"
@@ -104,6 +104,7 @@
 #include "ns3/simulation-proposal-reactive.h"
 #include "ns3/simulation-proposal-reactive-helper.h"
 
+#include "ns3/rand-simulation.h"
 
 using namespace ns3;
 
@@ -148,6 +149,7 @@ int main (int argc, char *argv[])
   double interval = 1.0; // seconds
   bool verbose = false;
   bool tracing = true;
+  double seed = 1;
 
   CommandLine cmd (__FILE__);
   cmd.AddValue ("phyMode", "Wifi Phy mode", phyMode);
@@ -158,9 +160,14 @@ int main (int argc, char *argv[])
   cmd.AddValue ("tracing", "turn on ascii and pcap tracing", tracing);
   cmd.AddValue ("numNodes", "number of nodes", numNodes);
   cmd.AddValue ("sinkNode", "Receiver node number", sinkNode);
+  cmd.AddValue ("seed", "random seed", seed);
   cmd.Parse (argc, argv);
   // Convert to time object
   Time interPacketInterval = Seconds (interval);
+
+
+
+
 
   // Fix non-unicast data rate to be the same as that of unicast
   Config::SetDefault ("ns3::WifiRemoteStationManager::NonUnicastMode",
@@ -210,7 +217,7 @@ int main (int argc, char *argv[])
   mobility.Install (c);
 
   // Enable OLSR
-  OlsrHelper olsr;
+  OlsrHelperSeed olsr(seed);
   Ipv4StaticRoutingHelper staticRouting;
 
 
@@ -239,24 +246,14 @@ int main (int argc, char *argv[])
   SimulationProposalReactiveHelper proposal2 (selectedprotocol,local2);
 
 
-  //タスクの要求の発生
-  std::random_device seed_gen;
-  std::default_random_engine engine(seed_gen());
 
-  std::exponential_distribution<> dist(1.0);
-
-  for (int n = 0; n < 1000; n++) {
-      // 指数分布で乱数を生成する
-     Time task_interval = Seconds(dist(engine));
-
-   }
 
 
 
 
   proposal.SetConstantRate(DataRate(datarate));
-  proposal.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=20]"));
-  proposal.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=20]"));
+  proposal.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=15]"));
+  proposal.SetAttribute("OffTime", StringValue ("ns3::ConstantRandomVariable[Constant=10]"));
 
   proposal2.SetConstantRate(DataRate(datarate));
   proposal2.SetAttribute("OnTime", StringValue ("ns3::ConstantRandomVariable[Constant=20]"));

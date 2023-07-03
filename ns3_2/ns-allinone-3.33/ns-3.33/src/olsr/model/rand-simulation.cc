@@ -38,7 +38,7 @@ RandSimulation::rand_node (){
 
 		if(i != 0)
 		{
-		std::mt19937 engine(i*2);//乱数の種の変更が必要
+		std::mt19937 engine(i*2*random_seed);//乱数の種の変更が必要
 
 		std::uniform_real_distribution<double> rnd(RANDOM_MIN, RANDOM_MAX);//メルセンヌ・ツイスタを利用
 

@@ -609,7 +609,6 @@ void SimulationProposalReactive::ScheduleStartEvent ()
 
   send_count = 0;
 
-
   //タスクの要求の発生
   std::random_device seed_gen;
   std::default_random_engine engine(seed_gen());
@@ -646,13 +645,15 @@ void SimulationProposalReactive::SendPacket ()
 
   std::cout<<"send"<<std::endl;
 
+  computing_start.push_back(Simulator::Now());
+
   Ptr<Packet> packet;
   if (m_unsentPacket)
-    {
+  {
       packet = m_unsentPacket;
-    }
+  }
   else if (m_enableSeqTsSizeHeader)
-    {
+  {
 //      Address from, to;
 //      m_socket_local->GetSockName (from);
 //      m_socket_local->GetPeerName (to);
@@ -673,8 +674,6 @@ void SimulationProposalReactive::SendPacket ()
 		  app = node->GetApplication(i);
 		  propo = DynamicCast<SimulationProposal> (app);
 		  //NS_ASSERT (listOlsr);
-
-
 		  if (propo)
 		  {
 			  sink_core_candidate_reactive = propo->GetSinkCoreCandidate();
@@ -1142,6 +1141,12 @@ SimulationProposalReactive::PacketReceived (const Ptr<Packet> &p, const Address 
 				}
 			}
 		}
+		computing_stop.push_back(Simulator::Now());
+		Time computing_tempo = computing_stop[0]-computing_start[0];
+		computing_time.push_back(computing_tempo);
+		computing_start.erase(computing_start.begin());
+		computing_stop.erase(computing_stop.begin());
+		std::cout<<computing_time[0]<<std::endl;
 	}
 
 
@@ -1547,7 +1552,9 @@ void SimulationProposalReactive::Computing (SimulationHeader header)
 				std::cout<<protocol->m_resource_num<<std::endl;
 				computing_interval = Seconds((task * calcu) / protocol->m_resource_num);
 				resource_tempo = protocol->m_resource_num;
+				resource_tempo2 = protocol->m_resource;
 				protocol->m_resource_num = 0;
+				protocol->m_resource = 0;
 				m_computingEvent = Simulator::Schedule (computing_interval, &SimulationProposalReactive::StopComputing, this);
 			}
 
@@ -1579,6 +1586,7 @@ void SimulationProposalReactive::StopComputing ()
 			{
 				std::cout<<protocol->m_resource_num<<std::endl;
 				protocol->m_resource_num = resource_tempo;
+				protocol->m_resource = resource_tempo2;
 			}
 		}
 	}

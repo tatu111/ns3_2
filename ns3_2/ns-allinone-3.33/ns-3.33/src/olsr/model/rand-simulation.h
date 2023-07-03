@@ -43,7 +43,7 @@ public:
 
   std::map<int, uint32_t> randnode;
   std::vector<uint32_t> node_ID;
-
+  double random_seed = 1;
 };
 
 }
