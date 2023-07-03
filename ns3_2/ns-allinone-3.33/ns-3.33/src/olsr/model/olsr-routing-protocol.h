@@ -219,6 +219,8 @@ public:
 
   RandSimulation randsimulation;
 
+  double random_seed;
+
 
   RandSimulation GetRandInstance ()
   {

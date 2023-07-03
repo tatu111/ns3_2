@@ -55,6 +55,7 @@
 #include "ns3/adhoc-wifi-mac.h"
 #include "ns3/string.h"
 #include "ns3/pointer.h"
+#include "ns3/double.h"
 #include <random>
 
 #include "ns3/rand-simulation.h"
@@ -209,7 +210,7 @@ RoutingProtocol::GetTypeId (void)
     .SetGroupName ("Olsr")
     .AddConstructor<RoutingProtocol> ()
     .AddAttribute ("HelloInterval", "HELLO messages emission interval.",
-                   TimeValue (Seconds (20)),
+                   TimeValue (Seconds (15)),
                    MakeTimeAccessor (&RoutingProtocol::m_helloInterval),
                    MakeTimeChecker ())
     .AddAttribute ("TcInterval", "TC messages emission interval.",
@@ -257,8 +258,11 @@ RoutingProtocol::GetTypeId (void)
 									  OLSR_Resource_18, "18",
 									  OLSR_Resource_19, "19",
 									  OLSR_Resource_20, "20"))
+	.AddAttribute ("randomseed", "random seed.",
+					DoubleValue(1.0),
+					MakeDoubleAccessor (&RoutingProtocol::random_seed),
+					MakeDoubleChecker<double> ())
 //
-
     .AddTraceSource ("Rx", "Receive OLSR packet.",
                      MakeTraceSourceAccessor (&RoutingProtocol::m_rxPacketTrace),
                      "ns3::olsr::RoutingProtocol::PacketTxRxTracedCallback")
@@ -328,9 +332,11 @@ RoutingProtocol::SetIpv4 (Ptr<Ipv4> ipv4)
   //自分で作成
   int resource_flag = 0;
 
-    RandSimulation randsimu;
-    if(resource_flag==0){
-  	  randsimu.rand_node();
+  RandSimulation randsimu;
+  if(resource_flag==0)
+  {
+	  randsimu.random_seed = random_seed;
+	  randsimu.rand_node();
   	  m_resource_num = randsimu.randnode[m_ipv4->GetObject<Node> ()->GetId ()];
   	  m_resource = m_resource_num/25000000;
   	  resource_flag = 1;
@@ -513,9 +519,7 @@ void RoutingProtocol::DoInitialize ()
       socket->SetRecvPktInfo (true);
       m_sendSockets[socket] = m_ipv4->GetAddress (i, 0);
 
-      //自分で作成
-      m_resource_table[m_ipv4->GetObject<Node> ()->GetId ()].push_back(m_resource);
-      //
+
 
 
       canRunOlsr = true;
@@ -1855,6 +1859,14 @@ RoutingProtocol::SendHello  (void)
 
   olsr::MessageHeader msg;
   Time now = Simulator::Now ();
+
+  m_resource_table.clear();
+  m_resource_sum.clear();
+  m_resource_threshold.clear();
+  resource_duplicated.clear();
+
+  m_resource_table[m_ipv4->GetObject<Node> ()->GetId ()].push_back(m_resource);
+
 
   msg.SetVTime (OLSR_NEIGHB_HOLD_TIME);
   msg.SetOriginatorAddress (m_mainAddress);

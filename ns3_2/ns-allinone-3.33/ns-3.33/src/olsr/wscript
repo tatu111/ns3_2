@@ -9,6 +9,7 @@ def build(bld):
         'model/olsr-routing-protocol.cc',
         'model/rand-simulation.cc',
         'helper/olsr-helper.cc',
+        'helper/olsr-helper-seed.cc',
         ]
 
     module_test = bld.create_ns3_module_test_library('olsr')
@@ -36,6 +37,7 @@ def build(bld):
         'model/olsr-repositories.h',
         'model/rand-simulation.h',
         'helper/olsr-helper.h',
+        'helper/olsr-helper-seed.h',
         ]
 
 

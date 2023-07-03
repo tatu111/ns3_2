@@ -1,0 +1,1658 @@
+Waf: Entering directory `/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build'
+Waf: Leaving directory `/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (0.701s)
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+7
+ok
+NULL
+ok
+9
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+13
+ok
+14
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+20
+ok
+21
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+25
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+10.1.1.1
++7.93208e+09ns
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+send
+1
+0
+receive
+core
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+1
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+2
+receive
+floodingreturn
+3
+receive
+floodingreturn
+4
+receive
+floodingreturn
+5
+receive
+floodingreturn
+6
+receive
+floodingreturn
+7
+receive
+floodingreturn
+8
+receive
+notice
+8
+18
+17
+14
+9
+6
+3
+1
+receive
+corecomputing
+4
+receive
+computing
+225879763
+0
+receive
+computing
+450807620
+0
+receive
+normal
+4
+receive
+normal
+4
+receive
+computing
+357990061
+0
+receive
+normal
+4
+receive
+computing
+449019854
+0
+receive
+normal
+4
+normal
+4
+receive
+stop
++2.02452e+09ns
++2.15214e+10ns
+send
+7
+0
+receive
+core
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+1
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+2
+receive
+floodingreturn
+3
+receive
+floodingreturn
+4
+receive
+floodingreturn
+5
+receive
+floodingreturn
+6
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+6
+receive
+floodingreturn
+7
+receive
+floodingreturn
+8
+receive
+notice
+8
+18
+17
+16
+15
+15
+14
+6
+receive
+corecomputing
+3
+receive
+computing
+449019854
+0
+receive
+normal
+3
+receive
+computing
+458904100
+0
+receive
+normal
+3
+receive
+computing
+412570223
+0
+receive
+normal
+3
+normal
+3
+receive
+stop
++2.02452e+09ns
++1.14393e+10ns
+send
+7
+0
+receive
+core
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+8
+receive
+floodingreturn
+8
+receive
+floodingreturn
+8
+receive
+floodingreturn
+8
+Flow 1 (10.1.1.8 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +1.05653e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 5
+  Rx Bytes:   2700
+  Throughput: 0.0024 Mbps
+Flow 2 (10.1.1.10 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +9.31201e+06ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 3 (10.1.1.14 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +1.2286e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 4 (10.1.1.15 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +1.7674e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 5 (10.1.1.21 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +2.15273e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 6 (10.1.1.22 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +1.01705e+09ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 7 (10.1.1.26 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +2.01573e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 8 (10.1.1.1 -> 10.1.1.8)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +7.12267e+06ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 9 (10.1.1.2 -> 10.1.1.8)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +378667ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 10 (10.1.1.7 -> 10.1.1.8)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +1.00827e+07ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 11 (10.1.1.9 -> 10.1.1.8)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +5.79534e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 12 (10.1.1.14 -> 10.1.1.8)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +1.00182e+09ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 13 (10.1.1.10 -> 10.1.1.8)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +9.83467e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 14 (10.1.1.20 -> 10.1.1.8)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +1.00123e+09ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 15 (10.1.1.3 -> 10.1.1.8)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +6.468e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 16 (10.1.1.8 -> 10.1.1.1)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +790668ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 17 (10.1.1.8 -> 10.1.1.3)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +2.176e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 18 (10.1.1.8 -> 10.1.1.7)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +1.586e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 19 (10.1.1.8 -> 10.1.1.14)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +8.666e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 20 (10.1.1.8 -> 10.1.1.20)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +1.58353e+07ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 21 (10.1.1.1 -> 10.1.1.21)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +1.16967e+07ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 22 (10.1.1.15 -> 10.1.1.21)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +2.21733e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 23 (10.1.1.20 -> 10.1.1.21)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +1.00388e+09ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 24 (10.1.1.22 -> 10.1.1.21)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +7.89867e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 25 (10.1.1.27 -> 10.1.1.21)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +7.00867e+06ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 26 (10.1.1.33 -> 10.1.1.21)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +7.83467e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 27 (10.1.1.9 -> 10.1.1.21)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +493334ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 28 (10.1.1.14 -> 10.1.1.21)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +1.95467e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 29 (10.1.1.16 -> 10.1.1.21)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +3.78534e+06ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 30 (10.1.1.23 -> 10.1.1.21)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +0ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 0
+  Rx Bytes:   0
+  Throughput: 0 Mbps
+Flow 31 (10.1.1.28 -> 10.1.1.21)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +0ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 0
+  Rx Bytes:   0
+  Throughput: 0 Mbps
+Flow 32 (10.1.1.21 -> 10.1.1.1)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +2.24267e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 33 (10.1.1.21 -> 10.1.1.16)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +6.61467e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 34 (10.1.1.21 -> 10.1.1.20)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +3.674e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 35 (10.1.1.21 -> 10.1.1.27)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +1.00055e+09ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Waf: Entering directory `/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build'
+Waf: Leaving directory `/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (0.715s)
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+16
+ok
+NULL
+ok
+NULL
+ok
+19
+ok
+NULL
+ok
+21
+ok
+22
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+26
+ok
+NULL
+ok
+28
+ok
+NULL
+ok
+NULL
+ok
+31
+ok
+NULL
+ok
+33
+ok
+NULL
+ok
+NULL
+ok
+10.1.1.1
++4.32523e+09ns
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+send
+0
++1.45108e+10ns
+send
+7
+0
+receive
+core
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+1
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+2
+receive
+floodingreturn
+2
+receive
+floodingreturn
+3
+receive
+floodingreturn
+4
+receive
+floodingreturn
+4
+receive
+floodingreturn
+5
+receive
+floodingreturn
+6
+receive
+floodingreturn
+7
+receive
+floodingreturn
+8
+receive
+notice
+8
+18
+18
+15
+12
+11
+11
+2
+receive
+corecomputing
+3
+receive
+computing
+454073227
+0
+receive
+normal
+3
+receive
+computing
+472320627
+0
+receive
+normal
+3
+receive
+computing
+387076068
+0
+receive
+normal
+3
+normal
+3
+receive
+stop
++3.65621e+10ns
++1.83751e+10ns
+send
+8
+0
+receive
+core
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+8
+receive
+floodingreturn
+8
+receive
+floodingreturn
+8
+receive
+floodingreturn
+8
++1.05358e+10ns
+Flow 1 (10.1.1.17 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +3.26367e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 2 (10.1.1.20 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +1.9896e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 3 (10.1.1.22 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +3.0884e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 4 (10.1.1.23 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +1.6528e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 5 (10.1.1.27 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +3.58294e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 6 (10.1.1.29 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +2.02617e+09ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 7 (10.1.1.32 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +1.01864e+09ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 8 (10.1.1.34 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +1.0251e+09ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 9 (10.1.1.1 -> 10.1.1.29)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +3.83667e+07ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 10 (10.1.1.23 -> 10.1.1.29)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +8.542e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 11 (10.1.1.28 -> 10.1.1.29)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +3.452e+06ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 12 (10.1.1.30 -> 10.1.1.29)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +1.00195e+09ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 13 (10.1.1.35 -> 10.1.1.29)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +1.59093e+07ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 14 (10.1.1.17 -> 10.1.1.29)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +6.908e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 15 (10.1.1.22 -> 10.1.1.29)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +2.55867e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 16 (10.1.1.34 -> 10.1.1.29)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +9.17867e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 17 (10.1.1.27 -> 10.1.1.29)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +3.356e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 18 (10.1.1.29 -> 10.1.1.1)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +3.29467e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 19 (10.1.1.29 -> 10.1.1.17)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +1.0156e+07ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 20 (10.1.1.29 -> 10.1.1.28)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +208667ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 21 (10.1.1.29 -> 10.1.1.35)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +3.666e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Waf: Entering directory `/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build'
+Waf: Leaving directory `/home/ueda/document/ns3_2/ns-allinone-3.33/ns-3.33/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (0.689s)
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+7
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+12
+ok
+13
+ok
+14
+ok
+15
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+19
+ok
+20
+ok
+21
+ok
+NULL
+ok
+NULL
+ok
+24
+ok
+NULL
+ok
+26
+ok
+27
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+NULL
+ok
+10.1.1.1
++7.8952e+09ns
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+send
+2
+0
+receive
+core
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+1
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+2
+receive
+floodingreturn
+3
+receive
+floodingreturn
+4
+receive
+floodingreturn
+5
+receive
+notice
+5
+18
+9
+8
+4
+receive
+corecomputing
+4
+receive
+computing
+474000657
+0
+receive
+normal
+4
+receive
+computing
+216109462
+0
+receive
+normal
+4
+receive
+computing
+225879763
+0
+receive
+normal
+4
+receive
+computing
+100996995
+0
+receive
+normal
+4
+normal
+4
+receive
+stop
++2.01299e+09ns
++1.17013e+10ns
+send
+10
+0
+receive
+core
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+1
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+2
+receive
+floodingreturn
+2
+receive
+floodingreturn
+3
+receive
+floodingreturn
+4
+receive
+floodingreturn
+4
+receive
+floodingreturn
+5
+receive
+notice
+5
+19
+16
+13
+7
+receive
+corecomputing
+4
+receive
+computing
+328641045
+0
+receive
+normal
+4
+receive
+computing
+185947004
+0
+receive
+normal
+4
+receive
+computing
+482221253
+0
+receive
+normal
+4
+receive
+computing
+410530060
+0
+receive
+normal
+4
+normal
+4
+receive
+stop
++2.01299e+09ns
++4.00907e+08ns
+send
+11
+0
+receive
+core
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+5
+receive
+floodingreturn
+5
++1.39222e+09ns
+send
+11
+0
+receive
+core
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+flooding
+receive
+floodingreturn
+5
+receive
+floodingreturn
+5
+Flow 1 (10.1.1.8 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +1.05653e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 5
+  Rx Bytes:   2700
+  Throughput: 0.0024 Mbps
+Flow 2 (10.1.1.13 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +1.02193e+09ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 5
+  Rx Bytes:   2700
+  Throughput: 0.0024 Mbps
+Flow 3 (10.1.1.14 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +2.436e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 4 (10.1.1.15 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +1.52267e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 5 (10.1.1.16 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +4.01074e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 6 (10.1.1.20 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +2.7832e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 7 (10.1.1.21 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +2.46214e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 8 (10.1.1.22 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +3.82594e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 9 (10.1.1.25 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +2.83733e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 10 (10.1.1.27 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +2.01614e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 11 (10.1.1.28 -> 10.1.1.1)
+  Tx Packets: 5
+  Tx Bytes:   2700
+  end-to-end  +3.71247e+07ns
+  TxOffered:  0.0024 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 12 (10.1.1.1 -> 10.1.1.8)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +7.28267e+06ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 13 (10.1.1.2 -> 10.1.1.8)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +587334ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 14 (10.1.1.7 -> 10.1.1.8)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +0ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 0
+  Rx Bytes:   0
+  Throughput: 0 Mbps
+Flow 15 (10.1.1.9 -> 10.1.1.8)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +6.064e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 16 (10.1.1.14 -> 10.1.1.8)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +0ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 0
+  Rx Bytes:   0
+  Throughput: 0 Mbps
+Flow 17 (10.1.1.10 -> 10.1.1.8)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +8.00534e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 18 (10.1.1.20 -> 10.1.1.8)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +0ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 0
+  Rx Bytes:   0
+  Throughput: 0 Mbps
+Flow 19 (10.1.1.3 -> 10.1.1.8)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +6.53134e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 20 (10.1.1.8 -> 10.1.1.1)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +790668ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 21 (10.1.1.8 -> 10.1.1.2)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +208667ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 22 (10.1.1.8 -> 10.1.1.3)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +2.79334e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 23 (10.1.1.8 -> 10.1.1.9)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +1.41667e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 24 (10.1.1.8 -> 10.1.1.10)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +4.04134e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 25 (10.1.1.1 -> 10.1.1.28)
+  Tx Packets: 4
+  Tx Bytes:   2160
+  end-to-end  +2.36973e+07ns
+  TxOffered:  0.00192 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 26 (10.1.1.22 -> 10.1.1.28)
+  Tx Packets: 4
+  Tx Bytes:   2160
+  end-to-end  +4.13067e+06ns
+  TxOffered:  0.00192 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 27 (10.1.1.27 -> 10.1.1.28)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +0ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 0
+  Rx Bytes:   0
+  Throughput: 0 Mbps
+Flow 28 (10.1.1.29 -> 10.1.1.28)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +0ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 0
+  Rx Bytes:   0
+  Throughput: 0 Mbps
+Flow 29 (10.1.1.34 -> 10.1.1.28)
+  Tx Packets: 4
+  Tx Bytes:   2160
+  end-to-end  +6.44e+06ns
+  TxOffered:  0.00192 Mbps
+  Rx Packets: 4
+  Rx Bytes:   2160
+  Throughput: 0.00192 Mbps
+Flow 30 (10.1.1.21 -> 10.1.1.28)
+  Tx Packets: 3
+  Tx Bytes:   1620
+  end-to-end  +3.864e+06ns
+  TxOffered:  0.00144 Mbps
+  Rx Packets: 3
+  Rx Bytes:   1620
+  Throughput: 0.00144 Mbps
+Flow 31 (10.1.1.26 -> 10.1.1.28)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +0ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 0
+  Rx Bytes:   0
+  Throughput: 0 Mbps
+Flow 32 (10.1.1.23 -> 10.1.1.28)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +9.264e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 33 (10.1.1.30 -> 10.1.1.28)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +0ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 0
+  Rx Bytes:   0
+  Throughput: 0 Mbps
+Flow 34 (10.1.1.16 -> 10.1.1.28)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +1.00153e+09ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 35 (10.1.1.28 -> 10.1.1.1)
+  Tx Packets: 2
+  Tx Bytes:   1080
+  end-to-end  +2.87734e+06ns
+  TxOffered:  0.00096 Mbps
+  Rx Packets: 2
+  Rx Bytes:   1080
+  Throughput: 0.00096 Mbps
+Flow 36 (10.1.1.28 -> 10.1.1.16)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +1.4972e+07ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 37 (10.1.1.28 -> 10.1.1.21)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +7.264e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 38 (10.1.1.28 -> 10.1.1.22)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +9.438e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
+Flow 39 (10.1.1.28 -> 10.1.1.34)
+  Tx Packets: 1
+  Tx Bytes:   540
+  end-to-end  +2.626e+06ns
+  TxOffered:  0.00048 Mbps
+  Rx Packets: 1
+  Rx Bytes:   540
+  Throughput: 0.00048 Mbps
